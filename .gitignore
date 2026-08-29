@@ -1,0 +1,40 @@
+# Environment
+.env
+.env.local
+.env.*
+!.env.example
+
+# Node
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+# Python / ML
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Large local data files
+ml/data/raw/*
+ml/data/processed/*
+ml/data/external/*
+!ml/data/raw/.gitkeep
+!ml/data/processed/.gitkeep
+!ml/data/external/.gitkeep
+
+route-engine/data/roads/raw/*
+route-engine/data/roads/processed/*
+!route-engine/data/roads/raw/.gitkeep
+!route-engine/data/roads/processed/.gitkeep
+
+# Local editor / OS files
+.DS_Store
+.vscode/
+.idea/
+Thumbs.db
+
+# Logs
+*.log
