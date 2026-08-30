@@ -38,3 +38,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Raw OSM datasets(Very huge raw data)
+*.osm.pbf
