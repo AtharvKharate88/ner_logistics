@@ -25,6 +25,9 @@ ml/data/external/*
 !ml/data/processed/.gitkeep
 !ml/data/external/.gitkeep
 
+#Except the processed .csv file
+!ml/data/processed/landslides_ner.csv
+
 route-engine/data/roads/raw/*
 route-engine/data/roads/processed/*
 !route-engine/data/roads/raw/.gitkeep
