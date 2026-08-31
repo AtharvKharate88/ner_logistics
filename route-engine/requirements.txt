@@ -1,0 +1,11 @@
+geopandas
+networkx
+numpy
+pandas
+pyarrow
+pyproj
+shapely
+fastapi
+uvicorn
+httpx
+joblib

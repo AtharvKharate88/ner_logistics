@@ -1,5 +1,5 @@
 const express = require('express');
-const routeRoutes = require('./routes/routeRoutes');
+const routeRoutes = require('./routes/route.routes');
 const riskRoutes = require('./routes/riskRoutes');
 const cors = require("cors");
 const dotenv = require("dotenv");

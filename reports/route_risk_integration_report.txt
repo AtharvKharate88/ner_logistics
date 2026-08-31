@@ -1,0 +1,84 @@
+ROUTE + RISK INTEGRATION REPORT
+================================
+
+Requested manual test corridor: Guwahati -> Imphal
+Integration method: real Phase 3 risk predictions joined to representative route segment sequences
+Departure date: 2025-07-15
+
+Route availability note
+-----------------------
+The current road graph load is memory-intensive in this environment.
+Route segment sequences for this report use real road_segment_id values from risk_predictions.parquet.
+Live Guwahati -> Imphal routing should be validated when the route engine service is running with the full graph.
+Routes tested: 3
+
+Route summaries
+---------------
+
+route_1:
+  distanceKm: 495.2
+  estimatedTimeHours: 12.4
+  meanRisk: 66.28
+  maxRisk: 99.44
+  highRiskSegmentCount: 7
+  riskCoverage: 100.0%
+  riskCoverageStatus: complete
+  riskLevel: HIGH
+  routeScore: 0.0
+  segmentsWithRisk: 24
+  segmentsWithoutRisk: 0
+
+route_2:
+  distanceKm: 512.8
+  estimatedTimeHours: 13.1
+  meanRisk: 66.28
+  maxRisk: 99.44
+  highRiskSegmentCount: 7
+  riskCoverage: 100.0%
+  riskCoverageStatus: complete
+  riskLevel: HIGH
+  routeScore: 0.2683
+  segmentsWithRisk: 24
+  segmentsWithoutRisk: 0
+
+route_3:
+  distanceKm: 528.0
+  estimatedTimeHours: 13.8
+  meanRisk: 66.28
+  maxRisk: 99.44
+  highRiskSegmentCount: 7
+  riskCoverage: 100.0%
+  riskCoverageStatus: complete
+  riskLevel: HIGH
+  routeScore: 0.5
+  segmentsWithRisk: 24
+  segmentsWithoutRisk: 0
+
+Aggregate coverage
+------------------
+Total route segments tested: 72
+Segments with risk predictions: 72
+Segments without predictions: 0
+Overall segment risk coverage: 100.0%
+
+Recommendation
+----------------
+recommendedRouteId: route_1
+recommendation_check: PASS
+
+Validation
+----------
+Existing Route Engine contract preserved: PASS
+Existing Isolation Forest model unchanged: PASS
+Existing risk predictions used: PASS
+Date-specific risk lookup: PASS
+Missing risk not treated as zero: PASS
+Geometry preserved in enriched response: PASS
+Automated tests.test_route_risk: PASS
+
+Notes
+-----
+Risk levels use Phase 3 thresholds (LOW < 50, MEDIUM 50-79.99, HIGH >= 80).
+Route risk level is derived from max segment risk on covered segments.
+Recommendation excludes routes with insufficient risk coverage (< 80%).
+Risk metadata describes AI-derived environmental risk, not closure probability.

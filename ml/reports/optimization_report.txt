@@ -1,0 +1,13 @@
+Dataset optimization report
+source_csv_mib=3226.35
+risk_features_parquet_mib=482.85
+csv_to_parquet_compression_ratio=6.68
+road_features_parquet_mib=2.19
+weather_features_parquet_mib=78.36
+risk_model_features_parquet_mib=2.69
+risk_model_feature_rows=250025
+selected_road_segments=685
+Architecture: road_features is static; weather_features contains time-varying rainfall; risk_features is the compact full denormalized analytical copy.
+ML subset: proportional road-type stratified segment sample retaining every 2025 date, not random row deletion.
+Recommended first Isolation Forest configuration: n_estimators=200, max_samples=auto, contamination='auto', n_jobs=-1; train on the seven numeric features only after median imputation, StandardScaler, and log1p for rainfall and landslide counts.
+Estimated training matrix RAM: roughly 7–20 MiB for 250k × 7 float32 values before model overhead; 16 GB RAM is sufficient for this prototype.

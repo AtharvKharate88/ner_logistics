@@ -1,0 +1,14 @@
+Road graph input validation
+path=C:\atharv\college\studies\coding\project a new start\logistics\ml\data\processed\road_segments.geojson
+crs=EPSG:4326
+rows=74100
+columns=['osm_id', 'name', 'ref', 'highway', 'surface', 'bridge', 'tunnel', 'oneway', 'maxspeed', 'lanes', 'z_order', 'road_segment_id', 'geometry']
+geometry_types={'LineString': 73922, 'MultiLineString': 178}
+valid_geometries=74100
+invalid_geometries=0
+empty_geometries=0
+road_segment_id_unique=74100
+highway_distribution={'residential': 43191, 'unclassified': 13305, 'tertiary': 6521, 'service': 3991, 'trunk': 3071, 'secondary': 2188, 'primary': 1833}
+bounds=[88.03150785358665, 21.940271167965648, 97.3308098, 29.205717990998274]
+oneway_distribution={'no': 72816, 'yes': 1284}
+status=PASS

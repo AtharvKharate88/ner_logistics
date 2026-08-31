@@ -1,0 +1,49 @@
+
+ISOLATION FOREST RISK MODEL REPORT
+===================================
+
+Dataset
+-------
+Observations: 250025
+Features: 7
+
+Features
+--------
+- rainfall_1d
+- rainfall_3d
+- rainfall_7d
+- elevation
+- slope
+- landslides_5km
+- landslides_10km
+
+Model
+-----
+Algorithm: Isolation Forest
+Trees: 200
+Contamination: auto
+Random State: 42
+
+Anomaly Score
+-------------
+Minimum: -0.299085
+Maximum: 0.172337
+Mean: 0.089416
+Median: 0.112605
+
+Risk Classification
+-------------------
+LOW: 125013
+MEDIUM: 74987
+HIGH: 50025
+
+Risk Thresholds
+---------------
+LOW: 0-49.99
+MEDIUM: 50-79.99
+HIGH: 80-100
+
+Validation
+----------
+HIGH-risk observations show higher average rainfall,
+slope and landslide exposure than LOW-risk observations.

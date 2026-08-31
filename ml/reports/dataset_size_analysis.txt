@@ -1,0 +1,26 @@
+Dataset size analysis (chunked; the complete CSV was never loaded into pandas at once)
+csv_size_gib=3.13
+total_rows=27046500
+columns=['road_segment_id', 'osm_id', 'date', 'latitude', 'longitude', 'road_type', 'surface', 'elevation', 'slope', 'landslides_5km', 'landslides_10km', 'rainfall_1d', 'rainfall_3d', 'rainfall_7d']
+unique_road_segment_id=74100
+unique_osm_id=74100
+unique_dates=365
+date_range=2025-01-01 to 2025-12-31
+state_distribution=not available: risk_features.csv has no state column and no boundary join was performed.
+rows_per_segment=365.00
+rows_per_date_min_max=74100/74100
+segments_x_dates=27046500
+actual_minus_expected=0
+duplicate_road_segment_id_date=0
+duplicate_complete_rows=0
+missing_percent={road_segment_id: 0.0000%, osm_id: 0.0000%, date: 0.0000%, latitude: 0.0000%, longitude: 0.0000%, road_type: 0.0000%, surface: 94.8988%, elevation: 0.0675%, slope: 0.0675%, landslides_5km: 0.0000%, landslides_10km: 0.0000%, rainfall_1d: 0.0000%, rainfall_3d: 0.0000%, rainfall_7d: 0.0000%}
+first_chunk_rows=250000
+first_chunk_in_memory_mib=33.99
+estimated_full_csv_pandas_memory_gib=3.59
+current_segment_count=74100
+segment_length_m_min_mean_median_max=1.4/1069.8/265.7/55832.0
+estimated_segments_at_500m=203845
+estimated_segments_at_1km=130899
+estimated_segments_at_2km=97298
+Size cause: a complete road-segment × date expansion repeats the static road fields 365 times, and CSV repeats text plus full-precision numbers without column compression.
+Recommendation: retain full NER coverage in Parquet; use a separate stratified 250k-row ML subset rather than dropping states.
