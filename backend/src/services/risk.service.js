@@ -1,24 +1,42 @@
-const RISK_PREDICTIONS_NOTE =
-  'Risk predictions are loaded by the route engine from existing Phase 3 parquet output.';
+const routeService = require('./route.service');
+const { AppError } = require('../middleware/error.middleware');
 
-const validateDepartureDate = (departureDate) => {
-  if (!departureDate || typeof departureDate !== 'string') {
-    return 'departureDate is required and must be a string in YYYY-MM-DD format.';
+const getSegmentRisk = async (segmentId, departureDate) => {
+  if (!segmentId) {
+    throw new AppError('segment id is required.', 400);
+  }
+  if (!departureDate) {
+    throw new AppError('date query parameter is required and must use YYYY-MM-DD format.', 400);
   }
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(departureDate)) {
-    return 'departureDate must use YYYY-MM-DD format.';
+  const payload = await routeService.getSegmentRisk(segmentId, departureDate);
+  if (payload.riskAvailable === false) {
+    return {
+      success: true,
+      roadSegmentId: segmentId,
+      date: departureDate,
+      riskAvailable: false,
+      message: 'Risk data unavailable for this segment.'
+    };
   }
 
-  const parsed = new Date(`${departureDate}T00:00:00Z`);
-  if (Number.isNaN(parsed.getTime())) {
-    return 'departureDate is not a valid calendar date.';
-  }
-
-  return null;
+  return {
+    success: true,
+    roadSegmentId: payload.roadSegmentId || segmentId,
+    date: departureDate,
+    riskAvailable: true,
+    anomalyScore: payload.anomalyScore,
+    riskScore: payload.riskScore,
+    riskLevel: payload.riskLevel
+  };
 };
 
 module.exports = {
-  validateDepartureDate,
-  RISK_PREDICTIONS_NOTE
+  getSegmentRisk,
+  validateDepartureDate: (departureDate) => {
+    if (!departureDate || typeof departureDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(departureDate)) {
+      return 'departureDate is required and must be a string in YYYY-MM-DD format.';
+    }
+    return null;
+  }
 };

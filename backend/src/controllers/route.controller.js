@@ -1,46 +1,28 @@
-const routeRiskService = require('../services/route-risk.service');
+const routeRiskService = require('../services/routeRisk.service');
 const Incident = require('../models/Incident');
+const Route = require('../models/Route');
 
-const planRoute = async (req, res) => {
-  const { origin, destination, departureDate, cargoType, weight } = req.body || {};
-
-  if (!origin || !destination) {
-    return res.status(400).json({
-      success: false,
-      message: 'Origin and destination are required.'
-    });
-  }
-
-  if (!departureDate) {
-    return res.status(400).json({
-      success: false,
-      message: 'departureDate is required and must use YYYY-MM-DD format.'
-    });
-  }
-
+const planRoute = async (req, res, next) => {
   try {
-    const response = await routeRiskService.planRouteWithRisk({
-      origin,
-      destination,
-      departureDate,
-      cargoType,
-      weight
-    });
+    const response = await routeRiskService.planRouteWithRisk(req.validatedPlan);
     return res.json(response);
   } catch (error) {
-    const statusCode = error.statusCode || 502;
-    return res.status(statusCode).json({
-      success: false,
-      message: error.message || 'Route planning failed.'
-    });
+    return next(error);
   }
 };
 
-const getRouteById = async (req, res) => {
-  const { routeId } = req.params;
-
+const getHistory = async (req, res, next) => {
   try {
-    const route = await routeService.getRouteById(routeId);
+    const response = await routeRiskService.getHistory();
+    return res.json(response);
+  } catch (error) {
+    return next(error);
+  }
+};
+
+const getRouteById = async (req, res, next) => {
+  try {
+    const route = await Route.findById(req.params.routeId).lean();
     if (!route) {
       return res.status(404).json({
         success: false,
@@ -49,14 +31,11 @@ const getRouteById = async (req, res) => {
     }
     return res.json({ success: true, route });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Route lookup failed.'
-    });
+    return next(error);
   }
 };
 
-const createIncident = async (req, res) => {
+const createIncident = async (req, res, next) => {
   const { latitude, longitude, type, severity, description } = req.body || {};
 
   if (latitude === undefined || longitude === undefined || !type) {
@@ -82,15 +61,13 @@ const createIncident = async (req, res) => {
       status: incident.status
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message || 'Incident save failed.'
-    });
+    return next(error);
   }
 };
 
 module.exports = {
   planRoute,
+  getHistory,
   getRouteById,
   createIncident
 };
