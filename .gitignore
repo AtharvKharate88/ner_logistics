@@ -44,3 +44,7 @@ Thumbs.db
 
 # Raw OSM datasets(Very huge raw data)
 *.osm.pbf
+
+# Large generated route graph files
+route-engine/data/graph/*.joblib
+route-engine/data/graph/*.parquet
