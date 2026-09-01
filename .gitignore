@@ -49,3 +49,9 @@ Thumbs.db
 # Large generated route graph files
 route-engine/data/graph/*.joblib
 route-engine/data/graph/*.parquet
+
+# Temporary graph files
+route-engine/data/graph/*.tmp
+
+# Keep main graph in Git LFS
+!route-engine/data/graph/road_graph.joblib
