@@ -3,8 +3,8 @@ from __future__ import annotations
 from datetime import date
 from typing import Any
 
-from risk.config import RouteRiskConfig, classify_risk_level
-from risk.risk_service import RiskService
+from src.risk.config import RouteRiskConfig, classify_risk_level
+from src.risk.risk_service import RiskService
 
 
 def _normalize(values: list[float]) -> list[float]:

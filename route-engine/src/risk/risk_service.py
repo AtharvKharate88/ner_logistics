@@ -5,7 +5,7 @@ from typing import Any
 
 import pandas as pd
 
-from risk.config import RouteRiskConfig
+from src.risk.config import RouteRiskConfig
 
 
 class RiskServiceError(ValueError):
@@ -55,13 +55,24 @@ class RiskService:
 
         self.load()
         assert self._available_dates is not None
-        if parsed not in self._available_dates:
-            min_date, max_date = self.available_date_range
-            raise RiskServiceError(
-                f"departureDate '{departure_date}' is not available in risk predictions. "
-                f"Available range: {min_date.isoformat()} to {max_date.isoformat()}."
-            )
-        return parsed
+        if parsed in self._available_dates:
+            return parsed
+
+        min_date, max_date = self.available_date_range
+        # Prototype predictions cover a climatology year (currently 2025).
+        # Future planning dates reuse the same month/day from that year.
+        if parsed > max_date:
+            try:
+                analog = parsed.replace(year=max_date.year)
+            except ValueError:
+                analog = date(max_date.year, 2, 28)
+            if analog in self._available_dates:
+                return analog
+
+        raise RiskServiceError(
+            f"departureDate '{departure_date}' is not available in risk predictions. "
+            f"Available range: {min_date.isoformat()} to {max_date.isoformat()}."
+        )
 
     def lookup_segments(self, segment_ids: list[str], departure_date: date) -> dict[str, dict[str, Any] | None]:
         self.load()

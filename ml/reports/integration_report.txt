@@ -1,13 +1,13 @@
 Integrated feature dataset report
-road_segments=74100
-integrated_rows=27046500
-unique_road_segments=74100
+road_segments=253122
+integrated_rows=92389530
+unique_road_segments=253122
 date_range=2025-01-01 to 2025-12-31
 rainfall_dates=365
 invalid_output_coordinates=0
 duplicate_road_segment_id_date=0 (each unique segment is emitted once per unique date)
 rainfall_coverage_percent=100.00 (only complete valid rainfall cells are joined)
-terrain_coverage_percent=99.40
-segments_with_landslide_information_percent=35.09
-feature_missing_percent={'rainfall_1d': 0.0, 'rainfall_3d': 0.0, 'rainfall_7d': 0.0, 'landslides_5km': 0.0, 'landslides_10km': 0.0, 'elevation': 0.6, 'slope': 0.6}
+terrain_coverage_percent=29.17
+segments_with_landslide_information_percent=29.29
+feature_missing_percent={'rainfall_1d': 0.0, 'rainfall_3d': 0.0, 'rainfall_7d': 0.0, 'landslides_5km': 0.0, 'landslides_10km': 0.0, 'elevation': 70.83, 'slope': 70.83}
 No supervised disruption, closure, failure, or risk labels were created.

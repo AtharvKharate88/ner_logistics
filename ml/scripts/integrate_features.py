@@ -26,8 +26,21 @@ SEGMENTS_PATH = PROCESSED / "road_segments.geojson"
 OUTPUT_PATH = PROCESSED / "risk_features.csv"
 REPORT_PATH = ROOT / "ml" / "reports" / "integration_report.txt"
 
-ROAD_CLASSES = {"motorway", "trunk", "primary", "secondary", "tertiary", "unclassified", "residential", "service"}
-
+ROAD_CLASSES = {
+    "motorway",
+    "motorway_link",
+    "trunk",
+    "trunk_link",
+    "primary",
+    "primary_link",
+    "secondary",
+    "secondary_link",
+    "tertiary",
+    "tertiary_link",
+    "unclassified",
+    "residential",
+    "service",
+}
 
 def read_roads() -> gpd.GeoDataFrame:
     roads = gpd.read_file(ROADS_PATH)

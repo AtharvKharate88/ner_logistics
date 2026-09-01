@@ -1,13 +1,23 @@
-Dataset optimization report
-source_csv_mib=3226.35
-risk_features_parquet_mib=482.85
-csv_to_parquet_compression_ratio=6.68
-road_features_parquet_mib=2.19
-weather_features_parquet_mib=78.36
-risk_model_features_parquet_mib=2.69
-risk_model_feature_rows=250025
-selected_road_segments=685
-Architecture: road_features is static; weather_features contains time-varying rainfall; risk_features is the compact full denormalized analytical copy.
-ML subset: proportional road-type stratified segment sample retaining every 2025 date, not random row deletion.
-Recommended first Isolation Forest configuration: n_estimators=200, max_samples=auto, contamination='auto', n_jobs=-1; train on the seven numeric features only after median imputation, StandardScaler, and log1p for rainfall and landslide counts.
-Estimated training matrix RAM: roughly 7–20 MiB for 250k × 7 float32 values before model overhead; 16 GB RAM is sufficient for this prototype.
+Graph-aligned ML dataset report
+
+source_rows=92389530
+graph_segments=23647
+usable_graph_segments=22600
+missing_graph_segments=1047
+graph_segment_coverage_percent=95.57
+model_rows=8249000
+unique_dates=365
+duplicate_segment_date_pairs=0
+date_min=2025-01-01
+date_max=2025-12-31
+segments_with_365_dates=22600
+segments_not_365_dates=0
+model_output=C:\atharv\college\studies\coding\project a new start\logistics\ml\data\processed\risk_model_features.parquet
+
+Architecture:
+risk_features.csv contains the complete 253,122-segment × 365-day dataset.
+risk_model_features.parquet contains only road segments present in the routing graph.
+All available dates are retained for each graph-aligned segment.
+
+ML features:
+rainfall_1d, rainfall_3d, rainfall_7d, elevation, slope, landslides_5km, landslides_10km
