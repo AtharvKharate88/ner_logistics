@@ -1,0 +1,35 @@
+/* Remove default browser spacing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Better page defaults */
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+/* Remove list styling */
+ul,
+ol {
+  list-style: none;
+}
+
+/* Make images responsive */
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* Inherit fonts for form elements */
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
