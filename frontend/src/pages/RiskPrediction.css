@@ -1,0 +1,492 @@
+/*
+ * RiskPrediction page styles — NER Logistics design system.
+ * All tokens are scoped to .risk-page so global styles stay untouched.
+ */
+
+.risk-page {
+    /* Design tokens (scoped to this page) */
+    --bg-primary: #0b1c15;
+    --bg-surface: #102a23;
+    --green-primary: #2d6a4f;
+    --green-accent: #52b788;
+    --blue-info: #4cc9f0;
+    --risk-low: #2c7a5e;
+    --risk-medium: #f59e0b;
+    --risk-high: #cf4444;
+    --text-primary: #e8edeb;
+    --text-secondary: #a7b5af;
+    --border-subtle: rgba(82, 183, 136, 0.18);
+    --border-input: rgba(167, 181, 175, 0.25);
+    --radius-card: 16px;
+    --radius-control: 10px;
+    --space-1: 8px;
+    --space-2: 12px;
+    --space-3: 16px;
+    --space-4: 24px;
+    --space-5: 32px;
+    --space-6: 48px;
+
+    min-height: 100vh;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    padding: var(--space-6) var(--space-4);
+    box-sizing: border-box;
+}
+
+.risk-page *,
+.risk-page *::before,
+.risk-page *::after {
+    box-sizing: border-box;
+}
+
+.risk-page__container {
+    max-width: 72rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+/* ---------- Header ---------- */
+
+.risk-page__header h1 {
+    font-family: "Manrope", sans-serif;
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 var(--space-1);
+    color: var(--text-primary);
+}
+
+.risk-page__subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+    max-width: 40rem;
+}
+
+/* ---------- Cards ---------- */
+
+.risk-page__card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    padding: var(--space-4);
+}
+
+.risk-page__card--error {
+    border-color: var(--risk-high);
+}
+
+.risk-page__card-title {
+    font-family: "Manrope", sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 var(--space-3);
+    color: var(--text-primary);
+}
+
+/* ---------- Form ---------- */
+
+.risk-page__form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-3);
+    align-items: end;
+}
+
+.risk-page__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.risk-page__label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.02em;
+}
+
+.risk-page__input {
+    height: 46px;
+    padding: 0 var(--space-3);
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-input);
+    border-radius: var(--radius-control);
+    color: var(--text-primary);
+    font-family: "Inter", sans-serif;
+    font-size: 0.95rem;
+    width: 100%;
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+    color-scheme: dark;
+}
+
+.risk-page__input::placeholder {
+    color: var(--text-secondary);
+}
+
+.risk-page__input:focus {
+    outline: none;
+    border-color: var(--green-accent);
+    box-shadow: 0 0 0 2px rgba(82, 183, 136, 0.2);
+}
+
+.risk-page__input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.risk-page__select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a7b5af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px;
+    cursor: pointer;
+}
+
+.risk-page__select option {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+.risk-page__select option:disabled {
+    color: var(--text-secondary);
+}
+
+.risk-page__actions {
+    display: flex;
+    align-items: flex-end;
+}
+
+.risk-page__button {
+    height: 46px;
+    padding: 0 var(--space-4);
+    background-color: var(--green-primary);
+    color: var(--text-primary);
+    border: 1px solid transparent;
+    border-radius: var(--radius-control);
+    font-family: "Inter", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+}
+
+@media (min-width: 768px) {
+    .risk-page__button {
+        width: auto;
+        min-width: 140px;
+    }
+}
+
+.risk-page__button:hover:not(:disabled) {
+    background-color: var(--green-accent);
+}
+
+.risk-page__button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.risk-page__button:focus-visible {
+    outline: none;
+    border-color: var(--green-accent);
+    box-shadow: 0 0 0 2px rgba(82, 183, 136, 0.35);
+}
+
+.risk-page__button--secondary {
+    background-color: transparent;
+    border-color: var(--border-input);
+}
+
+.risk-page__button--secondary:hover:not(:disabled) {
+    background-color: transparent;
+    border-color: var(--green-accent);
+}
+
+.risk-page__validation {
+    color: var(--risk-medium);
+    font-size: 0.85rem;
+    margin: var(--space-2) 0 0;
+}
+
+/* ---------- Loading ---------- */
+
+.risk-page__loading {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+}
+
+/* ---------- Error ---------- */
+
+.risk-page__error-message {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    margin: 0 0 var(--space-3);
+}
+
+.risk-page__error-actions {
+    display: flex;
+}
+
+/* ---------- Risk result ---------- */
+
+.risk-page__result-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.risk-page__score-block {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.risk-page__score-value {
+    font-family: "Manrope", sans-serif;
+    font-size: clamp(2.5rem, 6vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--text-primary);
+}
+
+.risk-page__level {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-control);
+    font-family: "Manrope", sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    border: 1px solid var(--border-input);
+}
+
+/* Presentation-only colors — the API riskLevel string drives the text. */
+.risk-page__level--low {
+    background-color: var(--risk-low);
+    border-color: var(--risk-low);
+}
+
+.risk-page__level--medium {
+    background-color: var(--risk-medium);
+    border-color: var(--risk-medium);
+    color: var(--bg-primary);
+}
+
+.risk-page__level--high {
+    background-color: var(--risk-high);
+    border-color: var(--risk-high);
+}
+
+.risk-page__level--unknown {
+    background-color: transparent;
+    color: var(--text-secondary);
+}
+
+.risk-page__result-caption {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.risk-page__anomaly {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.risk-page__anomaly::first-letter {
+    text-transform: uppercase;
+}
+
+/* Responsive spacing */
+
+@media (max-width: 767px) {
+    .risk-page {
+        padding: var(--space-4) var(--space-3);
+    }
+
+    .risk-page__card {
+        padding: var(--space-3);
+    }
+
+    .risk-page__container {
+        gap: var(--space-4);
+    }
+}
+
+.environmental-indicators {
+    margin-top: 32px;
+    padding: 24px;
+
+    background-color: #102a23;
+    border: 1px solid rgba(82, 183, 136, 0.2);
+    border-radius: 16px;
+}
+
+.environmental-indicators__header {
+    margin-bottom: 24px;
+}
+
+.environmental-indicators__eyebrow {
+    margin: 0 0 8px;
+
+    color: #52b788;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.environmental-indicators__header h2 {
+    margin: 0 0 8px;
+
+    color: #e8edeb;
+    font-family: "Manrope", sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.environmental-indicators__header p:last-child {
+    margin: 0;
+
+    color: #a7b5af;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.environmental-indicators__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.indicator-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    padding: 20px;
+
+    background-color: #0b1c15;
+    border: 1px solid rgba(82, 183, 136, 0.15);
+    border-radius: 12px;
+}
+
+.indicator-card__label {
+    color: #a7b5af;
+    font-size: 13px;
+}
+
+.indicator-card__value {
+    color: #e8edeb;
+    font-family: "Manrope", sans-serif;
+    font-size: 28px;
+    line-height: 1.2;
+}
+
+.indicator-card__unit {
+    color: #a7b5af;
+    font-size: 12px;
+}
+
+@media (max-width: 767px) {
+    .environmental-indicators {
+        padding: 16px;
+    }
+
+    .environmental-indicators__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.risk-explanation {
+    margin-top: 24px;
+    padding: 24px;
+
+    background-color: #102a23;
+    border: 1px solid rgba(82, 183, 136, 0.2);
+    border-radius: 16px;
+}
+
+.risk-explanation__eyebrow {
+    margin: 0 0 8px;
+
+    color: #52b788;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.risk-explanation h2 {
+    margin: 0 0 12px;
+
+    color: #e8edeb;
+    font-family: "Manrope", sans-serif;
+    font-size: 22px;
+}
+
+.risk-explanation__summary {
+    margin: 0;
+
+    color: #a7b5af;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.risk-explanation__indicators {
+    margin-top: 20px;
+}
+
+.risk-explanation__indicators h3 {
+    margin: 0 0 12px;
+
+    color: #e8edeb;
+    font-size: 15px;
+}
+
+.risk-explanation__indicators ul {
+    margin: 0;
+    padding-left: 20px;
+
+    color: #a7b5af;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+@media (max-width: 767px) {
+    .risk-explanation {
+        padding: 16px;
+    }
+}
+
+.risk-explanation__disclaimer {
+    margin: 20px 0 0;
+    padding-top: 16px;
+    border-top: 1px solid rgba(82, 183, 136, 0.2);
+
+    color: #a7b5af;
+    font-size: 13px;
+    line-height: 1.5;
+}

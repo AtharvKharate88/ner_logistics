@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
@@ -8,6 +10,7 @@ from src.risk.risk_service import RiskServiceError, get_risk_service
 from src.risk.route_risk import enrich_routes_with_risk
 
 import networkx as nx
+
 
 app = FastAPI(title="NER Route Engine", version="2.0.0")
 
@@ -28,42 +31,71 @@ class RoutePlanRequest(BaseModel):
 @app.on_event("startup")
 def startup_event() -> None:
     get_risk_service()
-    # Graph load is slow; do it at startup so the first HTTP request is not killed by Node timeouts.
+
+    # Graph load is slow; do it at startup so the first HTTP request
+    # is not killed by Node timeouts.
     engine = get_engine()
     engine.gcc_index()
 
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok", "service": "ner-route-engine"}
+    return {
+        "status": "ok",
+        "service": "ner-route-engine"
+    }
 
 
 @app.post("/routes/plan")
 def plan_route(request: RoutePlanRequest):
     risk_service = get_risk_service()
+
     try:
-        parsed_departure_date = risk_service.parse_departure_date(request.departureDate)
+        parsed_departure_date = risk_service.parse_departure_date(
+            request.departureDate
+        )
+
         engine = get_engine()
+
         route_response = engine.find_routes(
             request.origin.model_dump(),
             request.destination.model_dump(),
             k=3,
         )
-        enriched = enrich_routes_with_risk(route_response, parsed_departure_date, risk_service)
+
+        enriched = enrich_routes_with_risk(
+            route_response,
+            parsed_departure_date,
+            risk_service
+        )
+
         enriched["requestedDepartureDate"] = request.departureDate
         enriched["riskLookupDate"] = parsed_departure_date.isoformat()
+
         return enriched
+
     except (ValueError, RiskServiceError) as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc)
+        ) from exc
 
 
 @app.get("/risk/segment/{segment_id}")
 def segment_risk(segment_id: str, date: str):
+
     risk_service = get_risk_service()
+
     try:
         parsed_date = risk_service.parse_departure_date(date)
-        lookup = risk_service.lookup_segments([segment_id], parsed_date)
+
+        lookup = risk_service.lookup_segments(
+            [segment_id],
+            parsed_date
+        )
+
         risk = lookup.get(segment_id)
+
         if risk is None:
             return {
                 "success": True,
@@ -71,6 +103,7 @@ def segment_risk(segment_id: str, date: str):
                 "date": parsed_date.isoformat(),
                 "riskAvailable": False,
             }
+
         return {
             "success": True,
             "roadSegmentId": segment_id,
@@ -78,21 +111,93 @@ def segment_risk(segment_id: str, date: str):
             "riskAvailable": True,
             **risk,
         }
+
     except RiskServiceError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc)
+        ) from exc
+
+
+@app.get("/risk/segment/{segment_id}/history")
+def segment_risk_history(
+    segment_id: str,
+    startDate: str,
+    endDate: str,
+):
+
+    risk_service = get_risk_service()
+
+    try:
+        # ---------------------------------------------------------
+        # Validate start date
+        # ---------------------------------------------------------
+
+        try:
+            parsed_start_date = datetime.strptime(
+                startDate.strip(),
+                "%Y-%m-%d"
+            ).date()
+
+        except ValueError as exc:
+            raise RiskServiceError(
+                "startDate must use YYYY-MM-DD format."
+            ) from exc
+
+        # ---------------------------------------------------------
+        # Validate end date
+        # ---------------------------------------------------------
+
+        try:
+            parsed_end_date = datetime.strptime(
+                endDate.strip(),
+                "%Y-%m-%d"
+            ).date()
+
+        except ValueError as exc:
+            raise RiskServiceError(
+                "endDate must use YYYY-MM-DD format."
+            ) from exc
+
+        # ---------------------------------------------------------
+        # Get historical risk
+        # ---------------------------------------------------------
+
+        history = risk_service.get_segment_history(
+            segment_id,
+            parsed_start_date,
+            parsed_end_date,
+        )
+
+        return {
+            "success": True,
+            "roadSegmentId": segment_id,
+            "startDate": parsed_start_date.isoformat(),
+            "endDate": parsed_end_date.isoformat(),
+            "history": history,
+        }
+
+    except RiskServiceError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc)
+        ) from exc
 
 
 @app.get("/routes/graph/stats")
 def graph_stats() -> dict[str, object]:
     engine = get_engine()
+
     return {
         "nodes": engine.artifacts.graph.number_of_nodes(),
         "edges": engine.artifacts.graph.number_of_edges(),
         "metadata": engine.artifacts.metadata,
     }
 
+
 @app.get("/debug/route-test")
 def debug_route_test():
+
     engine = get_engine()
 
     guwahati = engine.nearest_node(26.1445, 91.7362)
@@ -123,8 +228,11 @@ def debug_route_test():
             "in_gcc": shillong["node_id"] in gcc,
         },
     }
+
+
 @app.get("/debug/connectivity")
 def debug_connectivity():
+
     engine = get_engine()
     graph = engine.artifacts.graph
 
@@ -137,6 +245,7 @@ def debug_connectivity():
             graph.to_undirected(),
             node_id
         )
+
         return len(component)
 
     return {
@@ -146,16 +255,22 @@ def debug_connectivity():
 
         "guwahati": {
             **guwahati,
-            "component_size": component_size(guwahati["node_id"]),
+            "component_size": component_size(
+                guwahati["node_id"]
+            ),
         },
 
         "shillong": {
             **shillong,
-            "component_size": component_size(shillong["node_id"]),
+            "component_size": component_size(
+                shillong["node_id"]
+            ),
         },
 
         "imphal": {
             **imphal,
-            "component_size": component_size(imphal["node_id"]),
+            "component_size": component_size(
+                imphal["node_id"]
+            ),
         },
     }
