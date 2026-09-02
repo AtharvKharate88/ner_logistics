@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@100..900&family=JetBrains+Mono:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+@keyframes pulse-emerald {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-pulse-emerald {
+  animation: pulse-emerald 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+.animate-dash {
+  animation: dash 2s linear infinite;
+}
+
+/* Custom Leaflet popup dark theme fixes */
+.leaflet-popup-content-wrapper {
+  background: #161d19 !important;
+  color: #dde4dd !important;
+  border: 1px solid #3c4a42;
+  border-radius: 8px;
+}
+.leaflet-popup-tip {
+  background: #161d19 !important;
+}
+/* Inverts default OpenStreetMap light tiles to dark mode if fallback triggers */
+.map-tile-fallback-dark {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
+}
+/* Converts standard OpenStreetMap tiles into a dark-mode theme */
+.dark-map-tiles {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
+}

@@ -1,0 +1,54 @@
+.risk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.risk-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+/* Status variants */
+.risk-badge--low {
+  background: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.risk-badge--low .risk-badge__dot {
+  background-color: #34d399;
+  box-shadow: 0 0 6px #34d399;
+}
+
+.risk-badge--medium, .risk-badge--med {
+  background: rgba(245, 158, 11, 0.1);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.risk-badge--medium .risk-badge__dot, .risk-badge--med .risk-badge__dot {
+  background-color: #fbbf24;
+  box-shadow: 0 0 6px #fbbf24;
+}
+
+.risk-badge--high {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.risk-badge--high .risk-badge__dot {
+  background-color: #f87171;
+  box-shadow: 0 0 6px #f87171;
+  animation: badge-pulse 2s infinite;
+}
+
+@keyframes badge-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
