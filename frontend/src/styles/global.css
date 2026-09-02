@@ -8,8 +8,8 @@ html {
 
 body {
   min-width: 320px;
-  background-color: var(--color-background);
-  color: var(--color-text);
+  background-color: var(--color-forest-bg, var(--color-background));
+  color: var(--color-forest-text, var(--color-text));
   font-family: var(--font-family);
   font-size: var(--font-base);
   line-height: 1.5;

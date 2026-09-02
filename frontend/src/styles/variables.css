@@ -4,30 +4,45 @@
 ======================================== */
 
 :root {
-  /* ---------- COLORS ---------- */
+  /* ---------- LEGACY / COMPAT ---------- */
+  /* Kept light so existing Navbar/Sidebar color-mix text formulas stay readable */
+  --color-background: #e8f0ec;
+  --color-surface: #102a23;
+  --color-text: #e8f0ec;
+  --color-text-secondary: #8aa399;
+  --color-border: rgba(45, 106, 79, 0.35);
 
-  --color-primary: #2563eb;
-  --color-primary-dark: #1d4ed8;
-  --color-primary-light: #dbeafe;
+  /* Brand / actions */
+  --color-primary: #2d6a4f;
+  --color-primary-dark: #1b4332;
+  --color-primary-light: #52b788;
 
-  --color-secondary: #0f766e;
-  --color-secondary-light: #ccfbf1;
+  --color-secondary: #2d6a4f;
+  --color-secondary-light: rgba(82, 183, 136, 0.18);
 
-  --color-background: #f8fafc;
-  --color-surface: #ffffff;
+  /* Status / risk */
+  --color-success: #52b788;
+  --color-warning: #f4a261;
+  --color-danger: #e63946;
 
-  --color-text: #0f172a;
-  --color-text-secondary: #64748b;
+  /* ---------- DARK FOREST TOKENS ---------- */
+  --color-forest-bg: #0b1c15;
+  --color-forest-bg-deep: #081c15;
+  --color-forest-surface: #102a23;
+  --color-forest-surface-elevated: #16352c;
+  --color-forest-primary: #2d6a4f;
+  --color-forest-accent: #52b788;
+  --color-forest-info: #4cc9f0;
+  --color-forest-text: #e8f0ec;
+  --color-forest-muted: #8aa399;
+  --color-forest-border: rgba(45, 106, 79, 0.38);
+  --color-forest-hover: rgba(45, 106, 79, 0.18);
 
-  --color-border: #e2e8f0;
-
-  /* Status colors */
-  --color-success: #16a34a;
-  --color-warning: #f59e0b;
-  --color-danger: #dc2626;
+  --color-risk-low: var(--color-success);
+  --color-risk-medium: var(--color-warning);
+  --color-risk-high: var(--color-danger);
 
   /* ---------- TYPOGRAPHY ---------- */
-
   --font-family: "Inter", Arial, sans-serif;
 
   --font-xs: 0.75rem;
@@ -40,7 +55,6 @@
   --font-4xl: 2.25rem;
 
   /* ---------- SPACING ---------- */
-
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -53,25 +67,18 @@
   --space-16: 4rem;
 
   /* ---------- BORDER RADIUS ---------- */
-
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
 
   /* ---------- SHADOWS ---------- */
-
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
-
-  --shadow-md: 0 4px 6px rgba(15, 23, 42, 0.08);
-
-  --shadow-lg: 0 10px 25px rgba(15, 23, 42, 0.1);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.35);
 
   /* ---------- LAYOUT ---------- */
-
   --navbar-height: 64px;
-
   --sidebar-width: 260px;
-
   --content-max-width: 1400px;
 }
