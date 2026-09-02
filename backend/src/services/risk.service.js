@@ -49,11 +49,36 @@ const getSegmentRisk = async (segmentId, departureDate) => {
     landslides_5km: payload.landslides_5km
   };
 };
+const getSegmentRiskHistory = async (segmentId, startDate, endDate) => {
+  if (!segmentId) {
+    throw new AppError('segment id is required.', 400);
+  }
 
+  if (!startDate || !endDate) {
+    throw new AppError(
+      'startDate and endDate query parameters are required and must use YYYY-MM-DD format.',
+      400
+    );
+  }
+
+  const payload = await routeService.getSegmentRiskHistory(
+    segmentId,
+    startDate,
+    endDate
+  );
+
+  return {
+    success: true,
+    roadSegmentId: payload.roadSegmentId || segmentId,
+    startDate: payload.startDate || startDate,
+    endDate: payload.endDate || endDate,
+    history: Array.isArray(payload.history) ? payload.history : []
+  };
+};
 module.exports = {
 
   getSegmentRisk,
-
+  getSegmentRiskHistory,
   validateDepartureDate: (departureDate) => {
 
     if (
@@ -66,5 +91,4 @@ module.exports = {
 
     return null;
   }
-
 };
