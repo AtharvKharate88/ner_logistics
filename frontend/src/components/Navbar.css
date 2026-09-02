@@ -1,0 +1,199 @@
+.navbar {
+  --forest-bg: color-mix(in srgb, black 80%, var(--color-secondary));
+  --forest-surface: #102a23;
+  --forest-accent: var(--color-secondary);
+  --forest-accent-soft: color-mix(in srgb, var(--color-success) 70%, white);
+  --forest-text: color-mix(in srgb, var(--color-background) 90%, var(--color-secondary));
+  --forest-muted: var(--color-text-secondary);
+  --forest-border: color-mix(in srgb, var(--color-secondary) 22%, transparent);
+  --forest-hover: color-mix(in srgb, var(--color-secondary) 14%, var(--forest-bg));
+
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: var(--navbar-height);
+  background-color: var(--forest-bg);
+  border-bottom: 1px solid var(--forest-border);
+}
+
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  height: 100%;
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+.navbar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  color: var(--forest-text);
+}
+
+.navbar__mark {
+  display: flex;
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--forest-accent-soft);
+}
+
+.navbar__mark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.navbar__identity {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+
+.navbar__title {
+  font-family: var(--font-family);
+  font-size: var(--font-sm);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.navbar__subtitle {
+  font-size: var(--font-xs);
+  color: var(--forest-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar__toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.22rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--forest-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.navbar__toggle:hover {
+  background-color: var(--forest-hover);
+  color: var(--forest-accent-soft);
+}
+
+.navbar__toggle:focus-visible {
+  outline: 1px solid var(--forest-accent-soft);
+  outline-offset: 2px;
+}
+
+.navbar__toggle-bar {
+  display: block;
+  width: 1rem;
+  height: 0.1rem;
+  border-radius: var(--radius-sm);
+  background-color: currentColor;
+}
+
+.navbar__nav {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-6);
+  height: 100%;
+}
+
+.navbar__link {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  padding: 0;
+  color: var(--forest-muted);
+  font-size: var(--font-sm);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.navbar__link:hover {
+  color: var(--forest-accent-soft);
+}
+
+.navbar__link:focus-visible {
+  outline: 1px solid var(--forest-accent-soft);
+  outline-offset: 4px;
+}
+
+.navbar__link--active {
+  color: var(--forest-accent-soft);
+  border-bottom-color: var(--forest-accent-soft);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--forest-accent-soft) 35%, transparent);
+}
+
+@media (max-width: 48rem) {
+  .navbar__subtitle {
+    display: none;
+  }
+
+  .navbar__toggle {
+    display: inline-flex;
+  }
+
+  .navbar__nav {
+    position: absolute;
+    top: var(--navbar-height);
+    right: var(--space-4);
+    left: var(--space-4);
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-1);
+    height: auto;
+    padding: var(--space-3);
+    border: 1px solid var(--forest-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--forest-surface);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .navbar__nav.is-open {
+    display: flex;
+  }
+
+  .navbar__link {
+    width: 100%;
+    height: auto;
+    padding: var(--space-3);
+    border-bottom: 0;
+    border-left: 2px solid transparent;
+  }
+
+  .navbar__link--active {
+    color: var(--forest-accent-soft);
+    background-color: var(--forest-hover);
+    border-left-color: var(--forest-accent-soft);
+    text-shadow: none;
+  }
+}
+
+@media (min-width: 48.0625rem) and (max-width: 64rem) {
+  .navbar__subtitle {
+    display: none;
+  }
+
+  .navbar__nav {
+    gap: var(--space-4);
+  }
+}
