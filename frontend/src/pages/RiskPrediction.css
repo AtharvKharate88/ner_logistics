@@ -487,3 +487,133 @@
         gap: var(--space-4);
     }
 }
+
+/* ---------- Risk trend ---------- */
+
+.risk-trend {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.risk-trend__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-width: 0;
+}
+
+.risk-trend__header .risk-page__card-title {
+    margin-bottom: var(--space-1);
+}
+
+.risk-trend__range {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.risk-trend__summary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    color: var(--text-secondary);
+    font-family: "Manrope", sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    min-width: 0;
+}
+
+.risk-trend__state {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    overflow-wrap: break-word;
+}
+
+.risk-trend__state--warning {
+    color: var(--risk-medium);
+}
+
+.risk-trend__chart-wrap {
+    min-width: 0;
+}
+
+.risk-trend__chart {
+    display: block;
+    width: 100%;
+    height: 220px;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-control);
+    overflow: hidden;
+}
+
+.risk-trend__grid {
+    stroke: var(--border-subtle);
+    stroke-width: 0.4;
+    vector-effect: non-scaling-stroke;
+}
+
+.risk-trend__area {
+    fill: rgba(82, 183, 136, 0.14);
+}
+
+.risk-trend__line {
+    fill: none;
+    stroke: var(--blue-info);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+
+.risk-trend__point {
+    fill: var(--blue-info);
+    stroke: var(--bg-primary);
+    stroke-width: 1.4;
+    vector-effect: non-scaling-stroke;
+}
+
+.risk-trend__point--low {
+    fill: var(--risk-low);
+}
+
+.risk-trend__point--medium {
+    fill: var(--risk-medium);
+}
+
+.risk-trend__point--high {
+    fill: var(--risk-high);
+}
+
+.risk-trend__axis {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-top: var(--space-1);
+    min-width: 0;
+}
+
+.risk-trend__axis span {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+    .risk-trend__header {
+        flex-direction: column;
+    }
+
+    .risk-trend__summary {
+        justify-content: flex-start;
+    }
+
+    .risk-trend__chart {
+        height: 180px;
+    }
+}

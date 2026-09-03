@@ -21,20 +21,54 @@ export const getSegmentRisk = async (segmentId, date) => {
 
     const data = await response.json();
 
-    if (!data || typeof data !== "object") {
-        throw new Error("Malformed risk response.");
-    }
-
-    if (typeof data.riskAvailable !== "boolean") {
-        throw new Error("Malformed risk response.");
-    }
-
     if (
-        data.riskAvailable &&
-        (data.riskScore === undefined || data.riskLevel === undefined)
+        !data ||
+        typeof data !== "object" ||
+        typeof data.riskScore !== "number" ||
+        typeof data.riskLevel !== "string"
     ) {
-        throw new Error("Malformed risk response.");
+        throw new Error("Malformed risk prediction response.");
     }
 
     return data;
+};
+
+export const getSegmentRiskHistory = async (
+    segmentId,
+    startDate,
+    endDate
+) => {
+    if (!segmentId) {
+        throw new Error("Road segment ID is required.");
+    }
+
+    if (!startDate || !endDate) {
+        throw new Error("Start date and end date are required.");
+    }
+
+    const response = await fetch(
+        `${API_BASE_URL}/risk/segment/${encodeURIComponent(
+            segmentId
+        )}/history?startDate=${encodeURIComponent(
+            startDate
+        )}&endDate=${encodeURIComponent(endDate)}`
+    );
+
+    if (!response.ok) {
+        throw new Error(
+            `Failed to fetch risk history (${response.status}).`
+        );
+    }
+
+    const data = await response.json();
+
+    if (
+        !data ||
+        typeof data !== "object" ||
+        !Array.isArray(data.history)
+    ) {
+        throw new Error("Malformed risk history response.");
+    }
+
+    return data.history;
 };
