@@ -8,6 +8,7 @@ import "leaflet/dist/leaflet.css";
 import "./styles/reset.css";
 import "./styles/variables.css";
 import "./styles/global.css";
+import "./styles.css";
 
 import App from "./App.jsx";
 

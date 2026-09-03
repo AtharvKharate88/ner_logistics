@@ -1,9 +1,26 @@
-import { useState } from "react";
-import { getSegmentRisk } from "../services/riskApi";
+import { useMemo, useState } from "react";
+import { getSegmentRisk, getSegmentRiskHistory } from "../services/riskApi";
 import "./RiskPrediction.css";
 
 function todayISODate() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function shiftISODate(date, days) {
+  const [year, month, day] = date.split("-").map(Number);
+  if (!year || !month || !day) {
+    return date;
+  }
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  parsed.setUTCDate(parsed.getUTCDate() + days);
+  return parsed.toISOString().slice(0, 10);
+}
+
+function getHistoryWindow(endDate) {
+  return {
+    startDate: shiftISODate(endDate, -364),
+    endDate,
+  };
 }
 
 const ROAD_SEGMENTS = [
@@ -26,6 +43,135 @@ function levelModifier(riskLevel) {
   return "unknown";
 }
 
+/**
+ * Format a numeric API value for display. Returns "Data unavailable"
+ * for null, undefined, or non-finite values — never fabricates data.
+ */
+function formatMetric(value, digits, unit) {
+  if (value === null || value === undefined || !Number.isFinite(Number(value))) {
+    return "Data unavailable";
+  }
+  return `${Number(value).toFixed(digits)}${unit ? ` ${unit}` : ""}`;
+}
+
+function formatShortDate(value) {
+  if (!value) {
+    return "";
+  }
+  const parsed = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+  return parsed.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function normalizeHistory(history) {
+  return history
+    .filter((entry) => entry && Number.isFinite(Number(entry.riskScore)))
+    .map((entry) => ({
+      ...entry,
+      riskScore: Number(entry.riskScore),
+    }));
+}
+
+function RiskTrend({ status, history, errorMessage, range }) {
+  const chart = useMemo(() => {
+    const points = normalizeHistory(history);
+    if (points.length === 0) {
+      return { points, path: "", areaPath: "", min: null, max: null };
+    }
+
+    const scores = points.map((point) => point.riskScore);
+    const min = Math.min(...scores);
+    const max = Math.max(...scores);
+    const scoreRange = max - min || 1;
+    const xStep = points.length > 1 ? 100 / (points.length - 1) : 0;
+    const coordinates = points.map((point, index) => {
+      const x = points.length > 1 ? index * xStep : 50;
+      const y = 88 - ((point.riskScore - min) / scoreRange) * 76;
+      return { ...point, x, y };
+    });
+    const path = coordinates.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ");
+    const areaPath = `0,100 ${path} 100,100`;
+
+    return { points: coordinates, path, areaPath, min, max };
+  }, [history]);
+
+  const firstPoint = chart.points[0];
+  const lastPoint = chart.points[chart.points.length - 1];
+
+  return (
+    <section className="risk-page__card risk-trend" aria-label="Risk trend">
+      <div className="risk-trend__header">
+        <div>
+          <h2 className="risk-page__card-title">RISK TREND</h2>
+          <p className="risk-trend__range">
+            {range.startDate} to {range.endDate}
+          </p>
+        </div>
+        {chart.points.length > 0 && (
+          <div className="risk-trend__summary" aria-label="Risk score range">
+            <span>{formatMetric(chart.min, 1)}</span>
+            <span>{formatMetric(chart.max, 1)}</span>
+          </div>
+        )}
+      </div>
+
+      {status === "loading" && (
+        <p className="risk-trend__state" role="status" aria-live="polite">
+          Loading historical risk data…
+        </p>
+      )}
+
+      {status === "error" && (
+        <p className="risk-trend__state risk-trend__state--warning" role="status">
+          {errorMessage}
+        </p>
+      )}
+
+      {status === "success" && chart.points.length === 0 && (
+        <p className="risk-trend__state" role="status">
+          No historical risk records are available for this road segment in the selected 365-day window.
+        </p>
+      )}
+
+      {status === "success" && chart.points.length > 0 && (
+        <div className="risk-trend__chart-wrap">
+          <svg
+            className="risk-trend__chart"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            role="img"
+            aria-label="Historical risk score trend"
+          >
+            <line className="risk-trend__grid" x1="0" y1="12" x2="100" y2="12" />
+            <line className="risk-trend__grid" x1="0" y1="50" x2="100" y2="50" />
+            <line className="risk-trend__grid" x1="0" y1="88" x2="100" y2="88" />
+            <polygon className="risk-trend__area" points={chart.areaPath} />
+            <polyline className="risk-trend__line" points={chart.path} />
+            {chart.points.map((point, index) => (
+              <circle
+                key={`${point.date ?? "history"}-${index}`}
+                className={`risk-trend__point risk-trend__point--${levelModifier(point.riskLevel)}`}
+                cx={point.x}
+                cy={point.y}
+                r="1.8"
+              />
+            ))}
+          </svg>
+          <div className="risk-trend__axis" aria-hidden="true">
+            <span>{formatShortDate(firstPoint?.date)}</span>
+            <span>{formatShortDate(lastPoint?.date)}</span>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default function RiskPrediction() {
   const [roadSegment, setRoadSegment] = useState("");
   const [date, setDate] = useState(todayISODate());
@@ -33,20 +179,54 @@ export default function RiskPrediction() {
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
   const [riskData, setRiskData] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [historyStatus, setHistoryStatus] = useState("idle"); // idle | loading | success | error
+  const [riskHistory, setRiskHistory] = useState([]);
+  const [historyErrorMessage, setHistoryErrorMessage] = useState(null);
+  const [historyRange, setHistoryRange] = useState(getHistoryWindow(date));
 
   /**
    * Single API request path shared by the form submit and the error retry,
    * so the request logic is never duplicated.
    */
   async function checkRisk(segmentId, targetDate) {
+    const nextHistoryRange = getHistoryWindow(targetDate);
     setStatus("loading");
     setErrorMessage(null);
+    setHistoryStatus("idle");
+    setRiskHistory([]);
+    setHistoryErrorMessage(null);
+    setHistoryRange(nextHistoryRange);
+
     try {
       const data = await getSegmentRisk(segmentId, targetDate);
       setRiskData(data);
       setStatus("success");
+
+      if (!data.riskAvailable) {
+        setHistoryStatus("idle");
+        return;
+      }
+
+      setHistoryStatus("loading");
+      try {
+        const history = await getSegmentRiskHistory(
+          segmentId,
+          nextHistoryRange.startDate,
+          nextHistoryRange.endDate,
+        );
+        setRiskHistory(history);
+        setHistoryStatus("success");
+      } catch {
+        setRiskHistory([]);
+        setHistoryErrorMessage(
+          "Historical risk data couldn't be loaded. The current assessment is still shown above.",
+        );
+        setHistoryStatus("error");
+      }
     } catch {
       setRiskData(null);
+      setRiskHistory([]);
+      setHistoryStatus("idle");
       setErrorMessage(
         "We couldn't retrieve the risk assessment right now. Please try again.",
       );
@@ -184,7 +364,7 @@ export default function RiskPrediction() {
               <div className="risk-page__result-body">
                 <div className="risk-page__score-block">
                   <span className="risk-page__score-value">
-                    {riskData.riskScore}
+                    {formatMetric(riskData.riskScore, 1)}
                   </span>
                   <span
                     className={`risk-page__level risk-page__level--${levelModifier(riskData.riskLevel)}`}
@@ -195,6 +375,12 @@ export default function RiskPrediction() {
                 <p className="risk-page__result-caption">
                   AI-derived environmental risk
                 </p>
+                {riskData.anomalyScore !== undefined &&
+                  riskData.anomalyScore !== null && (
+                    <p className="risk-page__anomaly">
+                      Anomaly score: {formatMetric(riskData.anomalyScore, 2)}
+                    </p>
+                  )}
               </div>
             ) : (
               <p className="risk-page__result-caption">
@@ -205,69 +391,95 @@ export default function RiskPrediction() {
           </section>
         )}
 
-        {status === "success" && riskData?.riskAvailable && (
-          <section className="environmental-indicators">
-            <div className="environmental-indicators__header">
-              <p className="environmental-indicators__eyebrow">
-                ENVIRONMENTAL INDICATORS
-              </p>
-
-              <h2>Environmental indicators</h2>
-
-              <p>
-                AI-derived environmental anomaly detected for the selected
-                road segment and date.
-              </p>
-            </div>
-
-            <div className="environmental-indicators__grid">
-              <article className="indicator-card">
-                <span className="indicator-card__label">
-                  Environmental anomaly score
-                </span>
-
-                <strong className="indicator-card__value">
-                  {Number(riskData.anomalyScore).toFixed(2)}
-                </strong>
-
-                <span className="indicator-card__unit">
-                  AI-derived anomaly
-                </span>
-              </article>
-            </div>
-          </section>
+        {status === "success" && riskData && riskData.riskAvailable && (
+          <RiskTrend
+            status={historyStatus}
+            history={riskHistory}
+            errorMessage={historyErrorMessage}
+            range={historyRange}
+          />
         )}
 
-        {status === "success" && riskData?.riskAvailable && (
-          <section className="risk-explanation">
-            <p className="risk-explanation__eyebrow">
-              RISK EXPLANATION
-            </p>
+        {status === "success" && riskData && riskData.riskAvailable && (
+          <div className="risk-page__details">
+            <section
+              className="risk-page__card environmental-indicators"
+              aria-label="Environmental indicators"
+            >
+              <h2 className="risk-page__card-title">
+                Environmental Indicators
+              </h2>
+              <div className="environmental-indicators__grid">
+                <div className="indicator-card">
+                  <p className="indicator-card__label">Anomaly Score</p>
+                  <p className="indicator-card__value">
+                    {formatMetric(riskData.anomalyScore, 2)}
+                  </p>
+                </div>
+                <div className="indicator-card">
+                  <p className="indicator-card__label">Rainfall (1 day)</p>
+                  <p className="indicator-card__value">
+                    {formatMetric(riskData.rainfall_1d, 1, "mm")}
+                  </p>
+                </div>
+                <div className="indicator-card">
+                  <p className="indicator-card__label">Rainfall (3 days)</p>
+                  <p className="indicator-card__value">
+                    {formatMetric(riskData.rainfall_3d, 1, "mm")}
+                  </p>
+                </div>
+                <div className="indicator-card">
+                  <p className="indicator-card__label">Rainfall (7 days)</p>
+                  <p className="indicator-card__value">
+                    {formatMetric(riskData.rainfall_7d, 1, "mm")}
+                  </p>
+                </div>
+                <div className="indicator-card">
+                  <p className="indicator-card__label">Slope</p>
+                  <p className="indicator-card__value">
+                    {formatMetric(riskData.slope, 1, "°")}
+                  </p>
+                </div>
+                <div className="indicator-card">
+                  <p className="indicator-card__label">
+                    Landslides within 5 km
+                  </p>
+                  <p className="indicator-card__value">
+                    {formatMetric(riskData.landslides_5km, 0)}
+                  </p>
+                </div>
+              </div>
+            </section>
 
-            <h2>
-              WHY IS THIS RISK {riskData.riskLevel}?
-            </h2>
-
-            <p className="risk-explanation__summary">
-              The model detected an unusual combination of environmental
-              conditions for this road segment.
-            </p>
-
-            <p className="risk-explanation__disclaimer">
-              AI-derived environmental risk. This is not a probability of road closure.
-            </p>
-
-            <div className="risk-explanation__indicators">
-              <h3>Key indicator:</h3>
-
-              <ul>
-                <li>
-                  Environmental anomaly score:{" "}
-                  {Number(riskData.anomalyScore).toFixed(2)}
-                </li>
-              </ul>
-            </div>
-          </section>
+            <section
+              className="risk-page__card risk-explanation"
+              aria-label="Risk explanation"
+            >
+              <h2 className="risk-page__card-title">Risk Explanation</h2>
+              <p className="risk-explanation__text">
+                The environmental risk for this road segment on the selected
+                date is assessed as{" "}
+                <strong>{riskData.riskLevel ?? "UNKNOWN"}</strong>. This
+                assessment is derived from recent rainfall (1-, 3-, and 7-day
+                accumulations), terrain slope, recorded landslides within 5
+                km, and the anomaly score of current conditions relative to
+                historical patterns.
+              </p>
+              <p className="risk-explanation__text">
+                Key indicators: rainfall 1d{" "}
+                {formatMetric(riskData.rainfall_1d, 1, "mm")}, rainfall 3d{" "}
+                {formatMetric(riskData.rainfall_3d, 1, "mm")}, rainfall 7d{" "}
+                {formatMetric(riskData.rainfall_7d, 1, "mm")}, slope{" "}
+                {formatMetric(riskData.slope, 1, "°")}, landslides within 5
+                km {formatMetric(riskData.landslides_5km, 0)}, anomaly score{" "}
+                {formatMetric(riskData.anomalyScore, 2)}.
+              </p>
+              <p className="risk-explanation__text risk-explanation__disclaimer">
+                This is an AI-derived environmental risk assessment and
+                should not be interpreted as a road-closure probability.
+              </p>
+            </section>
+          </div>
         )}
       </div>
     </main>
