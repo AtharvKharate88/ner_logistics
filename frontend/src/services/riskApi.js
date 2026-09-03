@@ -19,5 +19,22 @@ export const getSegmentRisk = async (segmentId, date) => {
         throw new Error(`Failed to fetch risk data (${response.status}).`);
     }
 
-    return response.json();
+    const data = await response.json();
+
+    if (!data || typeof data !== "object") {
+        throw new Error("Malformed risk response.");
+    }
+
+    if (typeof data.riskAvailable !== "boolean") {
+        throw new Error("Malformed risk response.");
+    }
+
+    if (
+        data.riskAvailable &&
+        (data.riskScore === undefined || data.riskLevel === undefined)
+    ) {
+        throw new Error("Malformed risk response.");
+    }
+
+    return data;
 };
