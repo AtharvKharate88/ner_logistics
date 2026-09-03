@@ -1,7 +1,7 @@
 import API_BASE_URL from "./api";
 
 export async function getRouteHistory() {
-    const response = await fetch(`${API_BASE_URL}/routes/history`, {
+    const response = await fetch(`${API_BASE_URL}/api/routes/history`, {
         method: "GET",
         headers: {
             Accept: "application/json",

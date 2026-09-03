@@ -39,7 +39,28 @@ const createIncident = async ({
     alert
   };
 };
+const getOfficerIncidents = async (userId) => {
+  const incidents = await Incident.find({
+    reportedBy: userId
+  })
+    .sort({ createdAt: -1 })
+    .limit(20)
+    .lean();
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const reportsToday = incidents.filter(
+    (incident) => new Date(incident.createdAt) >= today
+  ).length;
+
+  return {
+    reportsToday,
+    totalReports: incidents.length,
+    incidents
+  };
+};
 module.exports = {
-  createIncident
+  createIncident,
+  getOfficerIncidents
 };
