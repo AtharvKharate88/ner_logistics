@@ -109,10 +109,25 @@ const createIncident = async (req, res, next) => {
     return next(error);
   }
 };
+const getOfficerIncidents = async (req, res, next) => {
+  try {
+    const result = await incidentService.getOfficerIncidents(
+      req.user._id
+    );
+
+    return res.json({
+      success: true,
+      ...result
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
 
 module.exports = {
   planRoute,
   getHistory,
   getRouteById,
-  createIncident
+  createIncident,
+  getOfficerIncidents
 };

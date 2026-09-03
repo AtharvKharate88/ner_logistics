@@ -1,0 +1,278 @@
+.route-history {
+    min-height: 100%;
+    padding: var(--space-12) var(--space-6);
+    background: var(--color-forest-bg);
+    color: var(--color-forest-text);
+}
+
+.route-history__container {
+    width: min(100%, 1100px);
+    margin: 0 auto;
+}
+
+.route-history__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+}
+
+.route-history__eyebrow {
+    margin: 0 0 var(--space-2);
+    color: var(--color-forest-accent);
+    font-size: var(--font-xs);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.route-history__header h1 {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    line-height: 1.1;
+    font-weight: 700;
+}
+
+.route-history__subtitle {
+    margin: var(--space-3) 0 0;
+    color: var(--color-forest-muted);
+    font-size: var(--font-base);
+}
+
+.route-history__count {
+    flex-shrink: 0;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-forest-border);
+    border-radius: 999px;
+    background: var(--color-forest-surface);
+    color: var(--color-forest-accent);
+    font-size: var(--font-sm);
+    font-weight: 600;
+}
+
+/* Cards */
+
+.route-history__list {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.route-history__card {
+    padding: var(--space-6);
+    border: 1px solid var(--color-forest-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-forest-surface);
+    box-shadow: var(--shadow-md);
+    transition:
+        border-color 160ms ease,
+        transform 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.route-history__card:hover {
+    border-color: var(--color-forest-accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.route-history__card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+}
+
+.route-history__route {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    min-width: 0;
+}
+
+.route-history__location {
+    font-size: var(--font-lg);
+    font-weight: 700;
+}
+
+.route-history__arrow {
+    color: var(--color-forest-accent);
+    font-size: var(--font-xl);
+}
+
+.route-history__date {
+    flex-shrink: 0;
+    color: var(--color-forest-muted);
+    font-size: var(--font-sm);
+}
+
+.route-history__divider {
+    height: 1px;
+    margin: var(--space-5) 0;
+    background: var(--color-forest-border);
+}
+
+.route-history__details {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+}
+
+.route-history__detail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.route-history__label {
+    color: var(--color-forest-muted);
+    font-size: var(--font-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.route-history__value {
+    color: var(--color-forest-text);
+    font-size: var(--font-sm);
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.route-history__recommendation {
+    width: fit-content;
+    padding: var(--space-1) var(--space-3);
+    border-radius: 999px;
+    background: var(--color-secondary-light);
+    color: var(--color-forest-accent);
+    font-size: var(--font-sm);
+    font-weight: 700;
+}
+
+.route-history__footer {
+    margin-top: var(--space-5);
+    color: var(--color-forest-muted);
+    font-size: var(--font-xs);
+}
+
+/* Loading / empty / error */
+
+.route-history__state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 320px;
+    padding: var(--space-8);
+    border: 1px solid var(--color-forest-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-forest-surface);
+    text-align: center;
+}
+
+.route-history__state h2 {
+    margin: var(--space-4) 0 var(--space-2);
+    font-size: var(--font-lg);
+}
+
+.route-history__state p {
+    max-width: 480px;
+    margin: 0;
+    color: var(--color-forest-muted);
+    line-height: 1.6;
+}
+
+.route-history__state--error {
+    border-color: rgba(230, 57, 70, 0.45);
+}
+
+.route-history__state-icon,
+.route-history__empty-icon {
+    display: grid;
+    width: 48px;
+    height: 48px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--color-forest-hover);
+    color: var(--color-forest-accent);
+    font-size: var(--font-xl);
+    font-weight: 700;
+}
+
+.route-history__state--error .route-history__state-icon {
+    background: rgba(230, 57, 70, 0.12);
+    color: var(--color-risk-high);
+}
+
+.route-history__retry {
+    margin-top: var(--space-5);
+    padding: var(--space-3) var(--space-5);
+    border: 1px solid var(--color-forest-accent);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-forest-accent);
+    font: inherit;
+    font-size: var(--font-sm);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.route-history__retry:hover {
+    background: var(--color-forest-hover);
+}
+
+.route-history__spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--color-forest-border);
+    border-top-color: var(--color-forest-accent);
+    border-radius: 50%;
+    animation: route-history-spin 0.8s linear infinite;
+}
+
+@keyframes route-history-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+    .route-history {
+        padding: var(--space-8) var(--space-4);
+    }
+
+    .route-history__header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .route-history__card {
+        padding: var(--space-5);
+    }
+
+    .route-history__card-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+
+    .route-history__details {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .route-history {
+        padding: var(--space-6) var(--space-3);
+    }
+
+    .route-history__details {
+        grid-template-columns: 1fr;
+    }
+
+    .route-history__location {
+        font-size: var(--font-base);
+    }
+}

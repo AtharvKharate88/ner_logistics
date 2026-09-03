@@ -1,5 +1,5 @@
 const express = require('express');
-const { planRoute, getRouteById, getHistory, createIncident } = require('../controllers/route.controller');
+const { planRoute, getRouteById, getHistory, createIncident,getOfficerIncidents } = require('../controllers/route.controller');
 const { validatePlanRoute } = require('../middleware/validation.middleware');
 const { uploadIncidentPhoto } = require('../middleware/upload.middleware');
 const router = express.Router();
@@ -15,5 +15,10 @@ router.post(
   uploadIncidentPhoto.single('photo'),
   createIncident
 );
-
+router.get(
+  '/field-officer/incidents',
+  authenticate,
+  requireRole('FIELD_OFFICER'),
+  getOfficerIncidents
+);
 module.exports = router;
