@@ -10,6 +10,9 @@ import "./RouteCard.css";
 function RouteCard({ route, recommended = false, selected = false, onSelect }) {
   const level = normalizeRiskLevel(route?.risk?.level);
   const coverage = route?.risk?.coveragePercent;
+  const currentIncidents = Array.isArray(route?.currentIncidents)
+  ? route.currentIncidents
+  : [];
 
   return (
     <article
@@ -60,13 +63,37 @@ function RouteCard({ route, recommended = false, selected = false, onSelect }) {
             </p>
           </div>
         </div>
+        {currentIncidents.length > 0 ? (
+          <div className="route-card__incident-warning" role="alert">
+            <strong>⚠️ Current incident reported</strong>
 
-        <span className="route-card__action">
-          {selected ? "Selected on map" : "View on map"}
-        </span>
-      </button>
-    </article>
-  );
-}
+            {currentIncidents.slice(0, 2).map((incident) => (
+              <div key={incident.incidentId} className="route-card__incident">
+                <span>
+                  {incident.type} • {incident.severity}
+                </span>
+
+                <span>
+                  {incident.distanceFromRouteKm === 0
+                    ? "On route"
+                    : `${incident.distanceFromRouteKm} km from route`}
+                </span>
+              </div>
+            ))}
+
+            {currentIncidents.length > 2 ? (
+                <span>
+                  +{currentIncidents.length - 2} more reported incidents
+                </span>
+            ) : null}
+          </div>
+        ) : null}
+                <span className="route-card__action">
+                  {selected ? "Selected on map" : "View on map"}
+                </span>
+              </button>
+            </article>
+          );
+        }
 
 export default RouteCard;
