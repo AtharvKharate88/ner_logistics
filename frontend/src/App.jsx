@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
+import RouteHistory from "./pages/RouteHistory";
 
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
@@ -37,6 +38,7 @@ function AppLayout() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/route-planner" element={<RoutePlanner />} />
             <Route path="/risk-prediction" element={<RiskPrediction />} />
+            <Route path="/route-history" element={<RouteHistory />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
