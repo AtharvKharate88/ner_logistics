@@ -138,7 +138,7 @@ const buildAnalysis = (recommended, routes, weights, recommendedReason, demoFall
   const alternatives = routes.filter((route) => route.routeId !== recommended.routeId);
   const shortest = routes.reduce((best, route) =>
     route.distanceKm < best.distanceKm ? route : best
-  , routes[0]);
+    , routes[0]);
 
   if (recommended.risk?.available && recommended.risk.level === 'LOW') {
     reasons.push('Lower environmental risk relative to risk-scored alternatives.');
@@ -307,7 +307,11 @@ const planRouteWithRisk = async (validated) => {
 
 const getHistory = async () => {
   assertMongoReady();
+
   const records = await RouteRequest.find()
+    .select(
+      'origin destination departureDate cargoType weight vehicleType recommendedRouteId createdAt'
+    )
     .sort({ createdAt: -1 })
     .limit(50)
     .lean();

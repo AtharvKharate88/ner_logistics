@@ -14,4 +14,8 @@ const routeRequestSchema = new mongoose.Schema({
   timestamps: { createdAt: true, updatedAt: false }
 });
 
-module.exports = mongoose.models.RouteRequest || mongoose.model('RouteRequest', routeRequestSchema);
+routeRequestSchema.index({ createdAt: -1 });
+
+module.exports =
+  mongoose.models.RouteRequest ||
+  mongoose.model('RouteRequest', routeRequestSchema);
