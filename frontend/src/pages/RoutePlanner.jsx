@@ -1,6 +1,4 @@
 import { useMemo, useState } from "react";
-import Navbar from "../components/Navbar";
-import Sidebar from "../components/Sidebar";
 import Loading from "../components/Loading";
 import RouteForm from "../components/route-planner/RouteForm";
 import RouteMap from "../components/route-planner/RouteMap";
@@ -56,7 +54,6 @@ function validateForm(values) {
 }
 
 function RoutePlanner() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -119,10 +116,9 @@ function RoutePlanner() {
 
   return (
     <div className="route-planner">
-      <Navbar onMenuClick={() => setSidebarOpen(true)} />
+      
 
       <div className="route-planner__body">
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         <main className="route-planner__main">
           <header className="route-planner__header">
