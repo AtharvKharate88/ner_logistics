@@ -240,3 +240,99 @@
     gap: var(--space-4);
   }
 }
+
+/* ========================================
+   NAVBAR AUTH BUTTONS
+======================================== */
+
+.navbar__auth {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: var(--space-5);
+}
+
+/* Login button */
+.navbar__login-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 2.25rem;
+  padding: 0.45rem 1rem;
+
+  border: 1px solid var(--color-forest-accent);
+  border-radius: var(--radius-md);
+
+  color: var(--color-forest-accent);
+
+  font-size: var(--font-xs);
+  font-weight: 700;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.navbar__login-button:hover {
+  background: color-mix(
+    in srgb,
+    var(--color-forest-accent) 15%,
+    transparent
+  );
+
+  transform: translateY(-1px);
+}
+
+/* Sign up button */
+.navbar__signup-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 2.25rem;
+  padding: 0.45rem 1rem;
+
+  border-radius: var(--radius-md);
+
+  background: var(--color-forest-primary);
+  color: var(--color-forest-text);
+
+  font-size: var(--font-xs);
+  font-weight: 700;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.navbar__signup-button:hover {
+  background: var(--color-forest-accent);
+
+  transform: translateY(-1px);
+
+  box-shadow: var(--shadow-sm);
+}
+
+/* Keyboard accessibility */
+.navbar__login-button:focus-visible,
+.navbar__signup-button:focus-visible {
+  outline: 2px solid var(--color-forest-accent);
+  outline-offset: 3px;
+}
+
+/* Mobile layout */
+@media (max-width: 48rem) {
+  .navbar__auth {
+    margin-left: 0;
+    gap: var(--space-2);
+  }
+
+  .navbar__login-button,
+  .navbar__signup-button {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.7rem;
+  }
+}

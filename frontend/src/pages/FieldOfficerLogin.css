@@ -1,0 +1,784 @@
+/* ========================================
+   FIELD OFFICER LOGIN
+   ======================================== */
+
+.field-login {
+  position: relative;
+
+  min-height: calc(
+    100vh - var(--navbar-height)
+  );
+
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    var(--space-10)
+    var(--space-5);
+
+  background:
+    radial-gradient(
+      circle at 75% 50%,
+      color-mix(
+        in srgb,
+        var(--color-forest-primary) 16%,
+        transparent
+      ),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 15% 20%,
+      color-mix(
+        in srgb,
+        var(--color-forest-accent) 8%,
+        transparent
+      ),
+      transparent 30%
+    ),
+    var(--color-forest-bg);
+
+  color:
+    var(--color-forest-text);
+}
+
+
+/* ========================================
+   BACKGROUND DECORATION
+======================================== */
+
+.field-login__glow {
+  position: absolute;
+
+  width: 34rem;
+  height: 34rem;
+
+  right: -10rem;
+  bottom: -15rem;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      color-mix(
+        in srgb,
+        var(--color-forest-primary) 18%,
+        transparent
+      ),
+      transparent 70%
+    );
+
+  pointer-events: none;
+}
+
+
+/* ========================================
+   MAIN LAYOUT
+======================================== */
+
+.field-login__container {
+  position: relative;
+  z-index: 1;
+
+  width: min(
+    100%,
+    68rem
+  );
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(20rem, 26rem);
+
+  align-items: center;
+
+  gap:
+    clamp(
+      3rem,
+      8vw,
+      8rem
+    );
+}
+
+
+/* ========================================
+   LEFT INFORMATION
+======================================== */
+
+.field-login__info {
+  max-width: 30rem;
+}
+
+
+.field-login__badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  margin-bottom:
+    var(--space-4);
+
+  padding:
+    0.45rem
+    0.75rem;
+
+  border:
+    1px solid
+    color-mix(
+      in srgb,
+      var(--color-forest-accent) 35%,
+      transparent
+    );
+
+  border-radius:
+    var(--radius-lg);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--color-forest-primary) 15%,
+      transparent
+    );
+
+  color:
+    var(--color-forest-accent);
+
+  font-size:
+    0.65rem;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.12em;
+
+  text-transform:
+    uppercase;
+}
+
+
+/* Main heading */
+
+.field-login__info h1 {
+  margin: 0;
+
+  font-size:
+    clamp(
+      2.4rem,
+      4vw,
+      3.5rem
+    );
+
+  line-height: 1.05;
+
+  color:
+    var(--color-forest-text);
+}
+
+
+.field-login__info h1 span {
+  display: block;
+
+  color:
+    var(--color-forest-accent);
+}
+
+
+/* Description */
+
+.field-login__description {
+  max-width:
+    28rem;
+
+  margin:
+    var(--space-5)
+    0
+    var(--space-8);
+
+  color:
+    var(--color-forest-muted);
+
+  font-size:
+    var(--font-sm);
+
+  line-height:
+    1.8;
+}
+
+
+/* ========================================
+   FEATURE LIST
+======================================== */
+
+.field-login__features {
+  display: flex;
+
+  flex-direction: column;
+
+  gap:
+    var(--space-5);
+}
+
+
+.field-login__feature {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap:
+    var(--space-4);
+}
+
+
+/* Icon container */
+
+.field-login__feature-icon {
+  flex-shrink: 0;
+
+  width: 2.5rem;
+  height: 2.5rem;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border:
+    1px solid
+    color-mix(
+      in srgb,
+      var(--color-forest-accent) 35%,
+      transparent
+    );
+
+  border-radius:
+    var(--radius-md);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--color-forest-primary) 14%,
+      var(--color-forest-surface)
+    );
+
+  color:
+    var(--color-forest-accent);
+
+  font-size:
+    1rem;
+
+  font-weight:
+    700;
+}
+
+
+.field-login__feature h3 {
+  margin: 0;
+
+  color:
+    var(--color-forest-text);
+
+  font-size:
+    var(--font-sm);
+
+  font-weight:
+    700;
+}
+
+
+.field-login__feature p {
+  margin:
+    0.25rem
+    0
+    0;
+
+  color:
+    var(--color-forest-muted);
+
+  font-size:
+    var(--font-xs);
+
+  line-height:
+    1.6;
+}
+
+
+/* ========================================
+   LOGIN CARD
+======================================== */
+
+.field-login__card {
+  width: 100%;
+
+  padding:
+    var(--space-8);
+
+  border:
+    1px solid
+    var(--color-forest-border);
+
+  border-radius:
+    var(--radius-xl);
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--color-forest-surface-elevated) 95%,
+        transparent
+      ),
+      var(--color-forest-surface)
+    );
+
+  box-shadow:
+    var(--shadow-lg);
+}
+
+
+/* Card heading */
+
+.field-login__card-header {
+  display: flex;
+
+  align-items: center;
+
+  gap:
+    var(--space-3);
+}
+
+
+.field-login__icon {
+  width: 2.75rem;
+  height: 2.75rem;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius:
+    var(--radius-md);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--color-forest-accent) 16%,
+      transparent
+    );
+
+  color:
+    var(--color-forest-accent);
+
+  font-size:
+    1.25rem;
+}
+
+
+.field-login__card-header span {
+  display: block;
+
+  margin-bottom:
+    0.25rem;
+
+  color:
+    var(--color-forest-accent);
+
+  font-size:
+    0.55rem;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.13em;
+
+  text-transform:
+    uppercase;
+}
+
+
+.field-login__card-header h2 {
+  margin: 0;
+
+  color:
+    var(--color-forest-text);
+
+  font-size:
+    var(--font-lg);
+}
+
+
+/* Divider */
+
+.field-login__divider {
+  height: 1px;
+
+  margin:
+    var(--space-6)
+    0;
+
+  background:
+    var(--color-forest-border);
+}
+
+
+/* ========================================
+   FORM
+======================================== */
+
+.field-login__form {
+  display: flex;
+
+  flex-direction: column;
+
+  gap:
+    var(--space-5);
+}
+
+
+.field-login__group {
+  display: flex;
+
+  flex-direction: column;
+
+  gap:
+    var(--space-2);
+}
+
+
+.field-login__group label {
+  color:
+    var(--color-forest-muted);
+
+  font-size:
+    0.6rem;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.12em;
+
+  text-transform:
+    uppercase;
+}
+
+
+.field-login__group input {
+  width: 100%;
+
+  min-height:
+    2.9rem;
+
+  padding:
+    0
+    var(--space-4);
+
+  border:
+    1px solid
+    var(--color-forest-border);
+
+  border-radius:
+    var(--radius-md);
+
+  outline: none;
+
+  background:
+    color-mix(
+      in srgb,
+      var(--color-forest-bg-deep) 75%,
+      var(--color-forest-surface)
+    );
+
+  color:
+    var(--color-forest-text);
+
+  font-size:
+    var(--font-sm);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.field-login__group input::placeholder {
+  color:
+    color-mix(
+      in srgb,
+      var(--color-forest-muted) 70%,
+      transparent
+    );
+}
+
+
+.field-login__group input:focus {
+  border-color:
+    var(--color-forest-accent);
+
+  box-shadow:
+    0 0 0 3px
+    color-mix(
+      in srgb,
+      var(--color-forest-accent) 12%,
+      transparent
+    );
+}
+
+
+/* ========================================
+   ERROR
+======================================== */
+
+.field-login__error {
+  padding:
+    var(--space-3)
+    var(--space-4);
+
+  border:
+    1px solid
+    color-mix(
+      in srgb,
+      var(--color-risk-high) 45%,
+      transparent
+    );
+
+  border-radius:
+    var(--radius-md);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--color-risk-high) 10%,
+      transparent
+    );
+
+  color:
+    #ff8f96;
+
+  font-size:
+    var(--font-sm);
+}
+
+
+/* ========================================
+   LOGIN BUTTON
+======================================== */
+
+.field-login__button {
+  width: 100%;
+
+  min-height:
+    3rem;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap:
+    var(--space-3);
+
+  margin-top:
+    var(--space-1);
+
+  border-radius:
+    var(--radius-md);
+
+  background:
+    var(--color-forest-primary);
+
+  color:
+    var(--color-forest-text);
+
+  font-size:
+    var(--font-sm);
+
+  font-weight:
+    700;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.field-login__button:hover:not(:disabled) {
+  transform:
+    translateY(-2px);
+
+  background:
+    var(--color-primary-light);
+
+  box-shadow:
+    var(--shadow-md);
+}
+
+
+.field-login__button:disabled {
+  opacity: 0.65;
+
+  cursor:
+    not-allowed;
+}
+
+
+/* ========================================
+   CARD FOOTER
+======================================== */
+
+.field-login__footer {
+  display: flex;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap:
+    var(--space-2);
+
+  margin-top:
+    var(--space-6);
+
+  padding-top:
+    var(--space-5);
+
+  border-top:
+    1px solid
+    var(--color-forest-border);
+
+  color:
+    var(--color-forest-muted);
+
+  font-size:
+    0.6rem;
+}
+
+
+.field-login__status-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+
+  border-radius:
+    50%;
+
+  background:
+    var(--color-forest-accent);
+
+  box-shadow:
+    0 0 10px
+    color-mix(
+      in srgb,
+      var(--color-forest-accent) 70%,
+      transparent
+    );
+}
+
+
+.field-login__footer span:nth-child(2) {
+  color:
+    var(--color-forest-accent);
+
+  font-size:
+    0.55rem;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    0.08em;
+}
+
+
+.field-login__footer p {
+  width: 100%;
+
+  margin:
+    var(--space-1)
+    0
+    0;
+
+  padding-left:
+    0.65rem;
+
+  font-size:
+    0.55rem;
+}
+
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 56rem) {
+
+  .field-login {
+    align-items:
+      flex-start;
+
+    padding-top:
+      var(--space-8);
+  }
+
+
+  .field-login__container {
+    grid-template-columns:
+      1fr;
+
+    gap:
+      var(--space-10);
+
+    max-width:
+      32rem;
+  }
+
+
+  .field-login__info {
+    max-width:
+      100%;
+  }
+
+
+  .field-login__description {
+    max-width:
+      100%;
+  }
+
+}
+
+
+@media (max-width: 40rem) {
+
+  .field-login {
+    padding:
+      var(--space-6)
+      var(--space-4);
+  }
+
+
+  .field-login__card {
+    padding:
+      var(--space-6);
+  }
+
+
+  .field-login__info h1 {
+    font-size:
+      2.3rem;
+  }
+
+
+  .field-login__feature {
+    gap:
+      var(--space-3);
+  }
+
+}
