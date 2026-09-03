@@ -149,6 +149,26 @@ function Navbar({ onMenuClick }) {
               {item.label}
             </NavLink>
           ))}
+
+          <div className="navbar__auth">
+
+            <Link
+              to="/field-officer/login"
+              className="navbar__login-button"
+              onClick={closeMenu}
+            >
+              Login
+            </Link>
+
+            <Link
+              to="/field-officer/signup"
+              className="navbar__signup-button"
+              onClick={closeMenu}
+            >
+              Sign Up
+            </Link>
+
+          </div>
         </nav>
 
       </div>
