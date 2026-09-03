@@ -52,16 +52,57 @@
 }
 
 .route-planner__workspace {
+
   display: grid;
+
   grid-template-columns: minmax(18rem, 22rem) minmax(0, 1fr);
+
   gap: var(--space-5);
+
   align-items: stretch;
+
 }
 
 .route-planner__map-panel {
   position: relative;
+
   min-width: 0;
+
+  /* Stretch to the same height as the form */
+  align-self: stretch;
+
+  display: flex;
+}
+
+/* Make the RouteMap component fill the grid item */
+.route-planner__map-panel .route-map {
+  flex: 1;
+
   height: 100%;
+
+  min-height: 0;
+
+  display: flex;
+
+  flex-direction: column;
+}
+
+/* Make the map frame fill the RouteMap card */
+.route-planner__map-panel .route-map__frame {
+  flex: 1;
+
+  min-height: 0;
+
+  height: auto;
+}
+
+/* Make Leaflet fill the entire available frame */
+.route-planner__map-panel .route-map__leaflet {
+  width: 100%;
+
+  height: 100%;
+
+  min-height: 0;
 }
 
 .route-planner__demo {
@@ -128,6 +169,170 @@
   cursor: not-allowed;
 }
 
+/* ========================================
+   ROUTE ANALYSIS CTA
+======================================== */
+
+.route-planner__analysis-cta {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: var(--space-6);
+
+  padding: var(--space-6);
+
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--color-forest-accent) 35%,
+      transparent
+    );
+
+  border-radius: var(--radius-lg);
+
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(
+        in srgb,
+        var(--color-forest-primary) 20%,
+        var(--color-forest-surface)
+      ),
+      var(--color-forest-surface)
+    );
+
+  box-shadow: var(--shadow-sm);
+}
+
+
+.route-planner__analysis-content {
+
+  max-width: 44rem;
+}
+
+
+.route-planner__analysis-eyebrow {
+
+  display: block;
+
+  margin-bottom: var(--space-2);
+
+  color: var(--color-forest-accent);
+
+  font-size: var(--font-xs);
+
+  font-weight: 700;
+
+  letter-spacing: 0.14em;
+
+  text-transform: uppercase;
+}
+
+
+.route-planner__analysis-content h2 {
+
+  margin: 0;
+
+  color: var(--color-forest-text);
+
+  font-size: var(--font-xl);
+}
+
+
+.route-planner__analysis-content p {
+
+  margin: var(--space-2) 0 0;
+
+  color: var(--color-forest-muted);
+
+  font-size: var(--font-sm);
+
+  line-height: 1.6;
+}
+
+
+.route-planner__analysis-button {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: var(--space-3);
+
+  flex-shrink: 0;
+
+  min-height: 3rem;
+
+  padding:
+    0.7rem
+    1.25rem;
+
+  border-radius: var(--radius-md);
+
+  background:
+    var(--color-forest-primary);
+
+  color:
+    var(--color-forest-text);
+
+  font-size:
+    var(--font-sm);
+
+  font-weight: 700;
+
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.route-planner__analysis-button:hover {
+
+  transform:
+    translateY(-2px);
+
+  background:
+    var(--color-primary-light);
+
+  box-shadow:
+    var(--shadow-md);
+}
+
+
+.route-planner__analysis-button span {
+
+  font-size:
+    var(--font-lg);
+
+  transition:
+    transform 0.2s ease;
+}
+
+
+.route-planner__analysis-button:hover span {
+
+  transform:
+    translateX(3px);
+}
+
+
+.route-planner__analysis-button:focus-visible {
+
+  outline:
+    2px solid
+    var(--color-forest-accent);
+
+  outline-offset:
+    3px;
+}
+
 @media (max-width: 64rem) {
   .route-planner__main {
     width: 100%;
@@ -137,6 +342,20 @@
   .route-planner__workspace {
     grid-template-columns: 1fr;
   }
+
+  .route-planner__analysis-cta {
+
+  flex-direction: column;
+
+  align-items: flex-start;
+}
+
+
+.route-planner__analysis-button {
+
+  width: 100%;
+}
+
 }
 
 @media (max-width: 48rem) {

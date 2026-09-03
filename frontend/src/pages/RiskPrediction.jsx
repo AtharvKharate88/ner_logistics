@@ -1,487 +1,1165 @@
-import { useMemo, useState } from "react";
-import { getSegmentRisk, getSegmentRiskHistory } from "../services/riskApi";
+import {
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
+import RouteMap from
+  "../components/route-planner/RouteMap";
+
+import {
+  normalizeRiskLevel,
+} from "../utils/routeFormat";
+
 import "./RiskPrediction.css";
 
-function todayISODate() {
-  return new Date().toISOString().slice(0, 10);
-}
 
-function shiftISODate(date, days) {
-  const [year, month, day] = date.split("-").map(Number);
-  if (!year || !month || !day) {
-    return date;
+// Format distance
+function formatDistance(
+  distance
+) {
+  const value =
+    Number(distance);
+
+  if (
+    !Number.isFinite(value)
+  ) {
+    return "—";
   }
-  const parsed = new Date(Date.UTC(year, month - 1, day));
-  parsed.setUTCDate(parsed.getUTCDate() + days);
-  return parsed.toISOString().slice(0, 10);
+
+  return `${Math.round(value)} km`;
 }
 
-function getHistoryWindow(endDate) {
-  return {
-    startDate: shiftISODate(endDate, -364),
-    endDate,
-  };
-}
 
-const ROAD_SEGMENTS = [
-  { value: "", label: "Select road" },
-  { value: "road_1", label: "road_1" },
-  { value: "road_2", label: "road_2" },
-  { value: "road_3", label: "road_3" },
-];
+// Format route duration
+function formatDuration(
+  hours
+) {
+  const value =
+    Number(hours);
 
-/**
- * Map an API-provided risk level onto a presentation-only CSS modifier.
- * This does NOT classify risk — the API's riskLevel string is the source
- * of truth; this only picks which existing palette color renders it.
- */
-function levelModifier(riskLevel) {
-  const normalized = typeof riskLevel === "string" ? riskLevel.toLowerCase() : "";
-  if (normalized === "low" || normalized === "medium" || normalized === "high") {
-    return normalized;
+  if (
+    !Number.isFinite(value)
+  ) {
+    return "—";
   }
-  return "unknown";
-}
 
-/**
- * Format a numeric API value for display. Returns "Data unavailable"
- * for null, undefined, or non-finite values — never fabricates data.
- */
-function formatMetric(value, digits, unit) {
-  if (value === null || value === undefined || !Number.isFinite(Number(value))) {
-    return "Data unavailable";
+  const totalMinutes =
+    Math.round(
+      value * 60
+    );
+
+  const hourValue =
+    Math.floor(
+      totalMinutes / 60
+    );
+
+  const minuteValue =
+    totalMinutes % 60;
+
+  if (
+    hourValue <= 0
+  ) {
+    return `${minuteValue}m`;
   }
-  return `${Number(value).toFixed(digits)}${unit ? ` ${unit}` : ""}`;
-}
 
-function formatShortDate(value) {
-  if (!value) {
-    return "";
+  if (
+    minuteValue === 0
+  ) {
+    return `${hourValue}h`;
   }
-  const parsed = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
+
+  return `${hourValue}h ${minuteValue}m`;
+}
+
+
+// Format risk score
+function formatRiskScore(
+  score
+) {
+  const value =
+    Number(score);
+
+  if (
+    !Number.isFinite(value)
+  ) {
+    return "—";
   }
-  return parsed.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
+
+  return value.toFixed(1);
 }
 
-function normalizeHistory(history) {
-  return history
-    .filter((entry) => entry && Number.isFinite(Number(entry.riskScore)))
-    .map((entry) => ({
-      ...entry,
-      riskScore: Number(entry.riskScore),
-    }));
-}
 
-function RiskTrend({ status, history, errorMessage, range }) {
-  const chart = useMemo(() => {
-    const points = normalizeHistory(history);
-    if (points.length === 0) {
-      return { points, path: "", areaPath: "", min: null, max: null };
-    }
-
-    const scores = points.map((point) => point.riskScore);
-    const min = Math.min(...scores);
-    const max = Math.max(...scores);
-    const scoreRange = max - min || 1;
-    const xStep = points.length > 1 ? 100 / (points.length - 1) : 0;
-    const coordinates = points.map((point, index) => {
-      const x = points.length > 1 ? index * xStep : 50;
-      const y = 88 - ((point.riskScore - min) / scoreRange) * 76;
-      return { ...point, x, y };
-    });
-    const path = coordinates.map((point) => `${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ");
-    const areaPath = `0,100 ${path} 100,100`;
-
-    return { points: coordinates, path, areaPath, min, max };
-  }, [history]);
-
-  const firstPoint = chart.points[0];
-  const lastPoint = chart.points[chart.points.length - 1];
-
-  return (
-    <section className="risk-page__card risk-trend" aria-label="Risk trend">
-      <div className="risk-trend__header">
-        <div>
-          <h2 className="risk-page__card-title">RISK TREND</h2>
-          <p className="risk-trend__range">
-            {range.startDate} to {range.endDate}
-          </p>
-        </div>
-        {chart.points.length > 0 && (
-          <div className="risk-trend__summary" aria-label="Risk score range">
-            <span>{formatMetric(chart.min, 1)}</span>
-            <span>{formatMetric(chart.max, 1)}</span>
-          </div>
-        )}
-      </div>
-
-      {status === "loading" && (
-        <p className="risk-trend__state" role="status" aria-live="polite">
-          Loading historical risk data…
-        </p>
-      )}
-
-      {status === "error" && (
-        <p className="risk-trend__state risk-trend__state--warning" role="status">
-          {errorMessage}
-        </p>
-      )}
-
-      {status === "success" && chart.points.length === 0 && (
-        <p className="risk-trend__state" role="status">
-          No historical risk records are available for this road segment in the selected 365-day window.
-        </p>
-      )}
-
-      {status === "success" && chart.points.length > 0 && (
-        <div className="risk-trend__chart-wrap">
-          <svg
-            className="risk-trend__chart"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            role="img"
-            aria-label="Historical risk score trend"
-          >
-            <line className="risk-trend__grid" x1="0" y1="12" x2="100" y2="12" />
-            <line className="risk-trend__grid" x1="0" y1="50" x2="100" y2="50" />
-            <line className="risk-trend__grid" x1="0" y1="88" x2="100" y2="88" />
-            <polygon className="risk-trend__area" points={chart.areaPath} />
-            <polyline className="risk-trend__line" points={chart.path} />
-            {chart.points.map((point, index) => (
-              <circle
-                key={`${point.date ?? "history"}-${index}`}
-                className={`risk-trend__point risk-trend__point--${levelModifier(point.riskLevel)}`}
-                cx={point.x}
-                cy={point.y}
-                r="1.8"
-              />
-            ))}
-          </svg>
-          <div className="risk-trend__axis" aria-hidden="true">
-            <span>{formatShortDate(firstPoint?.date)}</span>
-            <span>{formatShortDate(lastPoint?.date)}</span>
-          </div>
-        </div>
-      )}
-    </section>
+// Get readable risk level
+function getRiskLevel(
+  route
+) {
+  return normalizeRiskLevel(
+    route?.risk?.level
   );
 }
 
-export default function RiskPrediction() {
-  const [roadSegment, setRoadSegment] = useState("");
-  const [date, setDate] = useState(todayISODate());
-  const [validation, setValidation] = useState(null);
-  const [status, setStatus] = useState("idle"); // idle | loading | success | error
-  const [riskData, setRiskData] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [historyStatus, setHistoryStatus] = useState("idle"); // idle | loading | success | error
-  const [riskHistory, setRiskHistory] = useState([]);
-  const [historyErrorMessage, setHistoryErrorMessage] = useState(null);
-  const [historyRange, setHistoryRange] = useState(getHistoryWindow(date));
 
-  /**
-   * Single API request path shared by the form submit and the error retry,
-   * so the request logic is never duplicated.
-   */
-  async function checkRisk(segmentId, targetDate) {
-    const nextHistoryRange = getHistoryWindow(targetDate);
-    setStatus("loading");
-    setErrorMessage(null);
-    setHistoryStatus("idle");
-    setRiskHistory([]);
-    setHistoryErrorMessage(null);
-    setHistoryRange(nextHistoryRange);
+// Get CSS class for risk
+function getRiskClass(
+  level
+) {
+  if (
+    level === "HIGH"
+  ) {
+    return "risk-high";
+  }
 
-    try {
-      const data = await getSegmentRisk(segmentId, targetDate);
-      setRiskData(data);
-      setStatus("success");
+  if (
+    level === "MEDIUM"
+  ) {
+    return "risk-medium";
+  }
 
-      if (!data.riskAvailable) {
-        setHistoryStatus("idle");
-        return;
-      }
+  return "risk-low";
+}
 
-      setHistoryStatus("loading");
-      try {
-        const history = await getSegmentRiskHistory(
-          segmentId,
-          nextHistoryRange.startDate,
-          nextHistoryRange.endDate,
-        );
-        setRiskHistory(history);
-        setHistoryStatus("success");
-      } catch {
-        setRiskHistory([]);
-        setHistoryErrorMessage(
-          "Historical risk data couldn't be loaded. The current assessment is still shown above.",
-        );
-        setHistoryStatus("error");
-      }
-    } catch {
-      setRiskData(null);
-      setRiskHistory([]);
-      setHistoryStatus("idle");
-      setErrorMessage(
-        "We couldn't retrieve the risk assessment right now. Please try again.",
+
+function RiskPrediction() {
+
+  const location =
+    useLocation();
+
+  const navigate =
+    useNavigate();
+
+
+  // Route data transferred from Route Planner
+  const routeData =
+    location.state?.routeData ||
+    null;
+
+
+  // Select recommended route initially
+  const [
+    selectedRouteId,
+    setSelectedRouteId,
+  ] = useState(
+    routeData?.recommendedRouteId ||
+    routeData?.routes?.[0]?.routeId ||
+    null
+  );
+
+
+  // Protect against direct navigation or refresh
+  if (
+    !routeData ||
+    !Array.isArray(
+      routeData.routes
+    ) ||
+    !routeData.routes.length
+  ) {
+    return (
+      <div
+        className="
+          risk-prediction
+        "
+      >
+
+        <div
+          className="
+            risk-prediction__main
+          "
+        >
+
+          <section
+            className="
+              risk-prediction__empty
+            "
+          >
+
+            <span
+              className="
+                risk-prediction__eyebrow
+              "
+            >
+              Route Analysis
+            </span>
+
+            <h1>
+              No Route Data Available
+            </h1>
+
+            <p>
+              Generate a route first
+              before analyzing route
+              risks.
+            </p>
+
+            <button
+              type="button"
+
+              onClick={() =>
+                navigate(
+                  "/route-planner"
+                )
+              }
+            >
+              Go to Route Planner
+            </button>
+
+          </section>
+
+        </div>
+
+      </div>
+    );
+  }
+
+
+  const routes =
+    routeData.routes;
+
+
+  // Selected route data
+  const selectedRoute =
+    useMemo(() => {
+      return (
+        routes.find(
+          (route) =>
+            route.routeId ===
+            selectedRouteId
+        ) ||
+        routes[0]
       );
-      setStatus("error");
-    }
-  }
+    }, [
+      routes,
+      selectedRouteId,
+    ]);
 
-  function handleSubmit(event) {
-    event.preventDefault();
 
-    if (!roadSegment) {
-      setValidation("Please select a road segment.");
-      return;
-    }
-    if (!date) {
-      setValidation("Please select a date.");
-      return;
-    }
+  const selectedRiskLevel =
+    getRiskLevel(
+      selectedRoute
+    );
 
-    setValidation(null);
-    checkRisk(roadSegment, date);
-  }
 
-  function handleRetry() {
-    checkRisk(roadSegment, date);
-  }
+  const selectedIncidents =
+    selectedRoute
+      ?.currentIncidents ||
+    [];
 
-  const isLoading = status === "loading";
+
+  const recommendedRouteId =
+    routeData.recommendedRouteId;
+
+
+  const recommendedReason =
+    routeData.recommendedReason ||
+    routeData.analysis
+      ?.summary ||
+    "This route was selected by the route engine based on the configured distance and risk trade-off.";
+
+
+  const analysisReasons =
+    routeData.analysis
+      ?.reasons || [];
+
 
   return (
-    <main className="risk-page">
-      <div className="risk-page__container">
-        <header className="risk-page__header">
-          <h1>ENVIRONMENTAL RISK PREDICTION</h1>
-          <p className="risk-page__subtitle">
-            Select a road segment and date to begin the risk assessment.
-          </p>
+    <div
+      className="
+        risk-prediction
+      "
+    >
+
+      <main
+        className="
+          risk-prediction__main
+        "
+      >
+
+        {/* =================================
+            PAGE HEADER
+        ================================= */}
+
+        <header
+          className="
+            risk-prediction__header
+          "
+        >
+
+          <div>
+
+            <p
+              className="
+                risk-prediction__eyebrow
+              "
+            >
+              Logistics Intelligence
+            </p>
+
+            <h1>
+              Risk Prediction
+            </h1>
+
+            <p
+              className="
+                risk-prediction__subtitle
+              "
+            >
+              Compare environmental
+              risks across available
+              transportation corridors
+              before selecting the
+              safest route.
+            </p>
+
+          </div>
+
+
+          <button
+            type="button"
+
+            className="
+              risk-prediction__back
+            "
+
+            onClick={() =>
+              navigate(
+                "/route-planner"
+              )
+            }
+          >
+            ← Plan Another Route
+          </button>
+
         </header>
 
-        <section className="risk-page__card" aria-label="Prediction form">
-          <h2 className="risk-page__card-title">Prediction Request</h2>
-          <form className="risk-page__form" onSubmit={handleSubmit} noValidate>
-            <div className="risk-page__field">
-              <label className="risk-page__label" htmlFor="risk-road-segment">
-                Road Segment / Location
-              </label>
-              <select
-                id="risk-road-segment"
-                className="risk-page__input risk-page__select"
-                value={roadSegment}
-                onChange={(e) => setRoadSegment(e.target.value)}
-                disabled={isLoading}
-              >
-                {ROAD_SEGMENTS.map((segment) => (
-                  <option
-                    key={segment.value}
-                    value={segment.value}
-                    disabled={segment.value === ""}
-                    hidden={segment.value === ""}
-                  >
-                    {segment.label}
-                  </option>
-                ))}
-              </select>
-            </div>
 
-            <div className="risk-page__field">
-              <label className="risk-page__label" htmlFor="risk-date">
-                Date
-              </label>
-              <input
-                id="risk-date"
-                className="risk-page__input"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
+        {/* =================================
+            ROUTE SUMMARY
+        ================================= */}
 
-            <div className="risk-page__actions">
-              <button
-                type="submit"
-                className="risk-page__button"
-                disabled={isLoading}
-              >
-                {isLoading ? "CHECKING…" : "CHECK RISK"}
-              </button>
-            </div>
-          </form>
+        <section
+          className="
+            risk-prediction__summary
+          "
+        >
 
-          {validation && (
-            <p className="risk-page__validation" role="alert">
-              {validation}
-            </p>
-          )}
+          <div
+            className="
+              risk-prediction__summary-item
+            "
+          >
+
+            <span>
+              Origin
+            </span>
+
+            <strong>
+              {
+                routeData.origin
+              }
+            </strong>
+
+          </div>
+
+
+          <div
+            className="
+              risk-prediction__summary-arrow
+            "
+          >
+            →
+          </div>
+
+
+          <div
+            className="
+              risk-prediction__summary-item
+            "
+          >
+
+            <span>
+              Destination
+            </span>
+
+            <strong>
+              {
+                routeData.destination
+              }
+            </strong>
+
+          </div>
+
+
+          <div
+            className="
+              risk-prediction__summary-item
+            "
+          >
+
+            <span>
+              Departure
+            </span>
+
+            <strong>
+              {
+                routeData.departureDate ||
+                "—"
+              }
+            </strong>
+
+          </div>
+
+
+          <div
+            className="
+              risk-prediction__summary-item
+            "
+          >
+
+            <span>
+              Cargo
+            </span>
+
+            <strong>
+              {
+                routeData.cargoType ||
+                "—"
+              }
+            </strong>
+
+          </div>
+
+
+          <div
+            className="
+              risk-prediction__summary-item
+            "
+          >
+
+            <span>
+              Vehicle
+            </span>
+
+            <strong>
+              {
+                routeData.vehicleType ||
+                "—"
+              }
+            </strong>
+
+          </div>
+
         </section>
 
-        {isLoading && (
-          <p className="risk-page__loading" role="status" aria-live="polite">
-            Assessing environmental risk…
-          </p>
-        )}
 
-        {status === "error" && (
-          <section
-            className="risk-page__card risk-page__card--error"
-            role="alert"
+        {/* =================================
+            MAP
+        ================================= */}
+
+        <section
+          className="
+            risk-prediction__map-section
+          "
+        >
+
+          <div
+            className="
+              risk-prediction__section-heading
+            "
           >
-            <h2 className="risk-page__card-title">Assessment Unavailable</h2>
-            <p className="risk-page__error-message">{errorMessage}</p>
-            <div className="risk-page__error-actions">
-              <button
-                type="button"
-                className="risk-page__button risk-page__button--secondary"
-                onClick={handleRetry}
-              >
-                TRY AGAIN
-              </button>
-            </div>
-          </section>
-        )}
 
-        {status === "success" && riskData && (
-          <section
-            className="risk-page__card risk-page__result"
-            aria-label="Risk result"
-            aria-live="polite"
-          >
-            <h2 className="risk-page__card-title">ENVIRONMENTAL RISK</h2>
+            <div>
 
-            {riskData.riskAvailable &&
-              riskData.riskScore !== undefined &&
-              riskData.riskScore !== null ? (
-              <div className="risk-page__result-body">
-                <div className="risk-page__score-block">
-                  <span className="risk-page__score-value">
-                    {formatMetric(riskData.riskScore, 1)}
-                  </span>
-                  <span
-                    className={`risk-page__level risk-page__level--${levelModifier(riskData.riskLevel)}`}
-                  >
-                    {riskData.riskLevel ?? "UNKNOWN"}
-                  </span>
-                </div>
-                <p className="risk-page__result-caption">
-                  AI-derived environmental risk
-                </p>
-                {riskData.anomalyScore !== undefined &&
-                  riskData.anomalyScore !== null && (
-                    <p className="risk-page__anomaly">
-                      Anomaly score: {formatMetric(riskData.anomalyScore, 2)}
-                    </p>
-                  )}
-              </div>
-            ) : (
-              <p className="risk-page__result-caption">
-                {riskData.message ||
-                  "Risk data is unavailable for this road segment and date."}
-              </p>
-            )}
-          </section>
-        )}
-
-        {status === "success" && riskData && riskData.riskAvailable && (
-          <RiskTrend
-            status={historyStatus}
-            history={riskHistory}
-            errorMessage={historyErrorMessage}
-            range={historyRange}
-          />
-        )}
-
-        {status === "success" && riskData && riskData.riskAvailable && (
-          <div className="risk-page__details">
-            <section
-              className="risk-page__card environmental-indicators"
-              aria-label="Environmental indicators"
-            >
-              <h2 className="risk-page__card-title">
-                Environmental Indicators
+              <h2>
+                Route Overview
               </h2>
-              <div className="environmental-indicators__grid">
-                <div className="indicator-card">
-                  <p className="indicator-card__label">Anomaly Score</p>
-                  <p className="indicator-card__value">
-                    {formatMetric(riskData.anomalyScore, 2)}
-                  </p>
-                </div>
-                <div className="indicator-card">
-                  <p className="indicator-card__label">Rainfall (1 day)</p>
-                  <p className="indicator-card__value">
-                    {formatMetric(riskData.rainfall_1d, 1, "mm")}
-                  </p>
-                </div>
-                <div className="indicator-card">
-                  <p className="indicator-card__label">Rainfall (3 days)</p>
-                  <p className="indicator-card__value">
-                    {formatMetric(riskData.rainfall_3d, 1, "mm")}
-                  </p>
-                </div>
-                <div className="indicator-card">
-                  <p className="indicator-card__label">Rainfall (7 days)</p>
-                  <p className="indicator-card__value">
-                    {formatMetric(riskData.rainfall_7d, 1, "mm")}
-                  </p>
-                </div>
-                <div className="indicator-card">
-                  <p className="indicator-card__label">Slope</p>
-                  <p className="indicator-card__value">
-                    {formatMetric(riskData.slope, 1, "°")}
-                  </p>
-                </div>
-                <div className="indicator-card">
-                  <p className="indicator-card__label">
-                    Landslides within 5 km
-                  </p>
-                  <p className="indicator-card__value">
-                    {formatMetric(riskData.landslides_5km, 0)}
-                  </p>
-                </div>
-              </div>
-            </section>
 
-            <section
-              className="risk-page__card risk-explanation"
-              aria-label="Risk explanation"
+              <p>
+                Select a route below
+                to highlight it on the
+                map.
+              </p>
+
+            </div>
+
+
+            <div
+              className="
+                risk-prediction__legend
+              "
             >
-              <h2 className="risk-page__card-title">Risk Explanation</h2>
-              <p className="risk-explanation__text">
-                The environmental risk for this road segment on the selected
-                date is assessed as{" "}
-                <strong>{riskData.riskLevel ?? "UNKNOWN"}</strong>. This
-                assessment is derived from recent rainfall (1-, 3-, and 7-day
-                accumulations), terrain slope, recorded landslides within 5
-                km, and the anomaly score of current conditions relative to
-                historical patterns.
-              </p>
-              <p className="risk-explanation__text">
-                Key indicators: rainfall 1d{" "}
-                {formatMetric(riskData.rainfall_1d, 1, "mm")}, rainfall 3d{" "}
-                {formatMetric(riskData.rainfall_3d, 1, "mm")}, rainfall 7d{" "}
-                {formatMetric(riskData.rainfall_7d, 1, "mm")}, slope{" "}
-                {formatMetric(riskData.slope, 1, "°")}, landslides within 5
-                km {formatMetric(riskData.landslides_5km, 0)}, anomaly score{" "}
-                {formatMetric(riskData.anomalyScore, 2)}.
-              </p>
-              <p className="risk-explanation__text risk-explanation__disclaimer">
-                This is an AI-derived environmental risk assessment and
-                should not be interpreted as a road-closure probability.
-              </p>
-            </section>
+
+              <span>
+                <i
+                  className="
+                    risk-prediction__legend-dot
+                    risk-prediction__legend-dot--recommended
+                  "
+                />
+
+                Recommended
+              </span>
+
+              <span>
+                <i
+                  className="
+                    risk-prediction__legend-dot
+                    risk-prediction__legend-dot--alternative
+                  "
+                />
+
+                Alternatives
+              </span>
+
+            </div>
+
           </div>
-        )}
-      </div>
-    </main>
+
+
+          <div
+            className="
+              risk-prediction__map
+            "
+          >
+
+            <RouteMap
+              routes={routes}
+
+              selectedRouteId={
+                selectedRouteId
+              }
+
+              recommendedRouteId={
+                recommendedRouteId
+              }
+
+              originLabel={
+                routeData.origin
+              }
+
+              destinationLabel={
+                routeData.destination
+              }
+
+              originCoordinates={
+                routeData.originCoordinates
+              }
+
+              destinationCoordinates={
+                routeData.destinationCoordinates
+              }
+            />
+
+          </div>
+
+        </section>
+
+
+        {/* =================================
+            ROUTE RESULTS
+        ================================= */}
+
+        <section
+          className="
+            risk-prediction__results
+          "
+        >
+
+          <div
+            className="
+              risk-prediction__section-heading
+            "
+          >
+
+            <div>
+
+              <h2>
+                Route Results
+              </h2>
+
+              <p>
+                Compare corridors and
+                their environmental
+                risk.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div
+            className="
+              risk-prediction__route-grid
+            "
+          >
+
+            {routes.map(
+              (route) => {
+
+                const isSelected =
+                  route.routeId ===
+                  selectedRouteId;
+
+                const isRecommended =
+                  route.routeId ===
+                  recommendedRouteId;
+
+                const riskLevel =
+                  getRiskLevel(
+                    route
+                  );
+
+                const riskClass =
+                  getRiskClass(
+                    riskLevel
+                  );
+
+                const incidents =
+                  route.currentIncidents ||
+                  [];
+
+
+                return (
+
+                  <button
+                    type="button"
+
+                    key={
+                      route.routeId
+                    }
+
+                    className={`
+                      risk-prediction__route-card
+                      ${
+                        isSelected
+                          ? "risk-prediction__route-card--selected"
+                          : ""
+                      }
+                    `}
+
+                    onClick={() =>
+                      setSelectedRouteId(
+                        route.routeId
+                      )
+                    }
+                  >
+
+                    {/* Card header */}
+                    <div
+                      className="
+                        risk-prediction__route-card-header
+                      "
+                    >
+
+                      <strong>
+
+                        {isRecommended
+                          ? "★ RECOMMENDED ROUTE"
+                          : route.routeId.toUpperCase()
+                        }
+
+                      </strong>
+
+
+                      <span
+                        className={`
+                          risk-prediction__risk-badge
+                          ${riskClass}
+                        `}
+                      >
+                        Risk:
+                        {" "}
+                        {riskLevel}
+                      </span>
+
+                    </div>
+
+
+                    {/* Route metrics */}
+                    <div
+                      className="
+                        risk-prediction__metrics
+                      "
+                    >
+
+                      <div>
+
+                        <span>
+                          Distance
+                        </span>
+
+                        <strong>
+                          {
+                            formatDistance(
+                              route.distanceKm
+                            )
+                          }
+                        </strong>
+
+                      </div>
+
+
+                      <div>
+
+                        <span>
+                          Duration
+                        </span>
+
+                        <strong>
+                          {
+                            formatDuration(
+                              route.estimatedTimeHours
+                            )
+                          }
+                        </strong>
+
+                      </div>
+
+
+                      <div>
+
+                        <span>
+                          Risk Score
+                        </span>
+
+                        <strong>
+                          {
+                            formatRiskScore(
+                              route.risk?.score
+                            )
+                          }
+                        </strong>
+
+                      </div>
+
+
+                      <div>
+
+                        <span>
+                          Risk Coverage
+                        </span>
+
+                        <strong>
+                          {Math.round(
+                            route.risk
+                              ?.coveragePercent ||
+                              0
+                          )}
+                          %
+                        </strong>
+
+                      </div>
+
+                    </div>
+
+
+                    {/* High risk segment count */}
+                    <div
+                      className="
+                        risk-prediction__segment-info
+                      "
+                    >
+
+                      <span>
+                        High-Risk Segments
+                      </span>
+
+                      <strong>
+                        {
+                          route.risk
+                            ?.highRiskSegmentCount ??
+                          "—"
+                        }
+                      </strong>
+
+                    </div>
+
+
+                    {/* Current incidents */}
+                    {incidents.length > 0 ? (
+
+                      <div
+                        className="
+                          risk-prediction__incident
+                        "
+                      >
+
+                        <div
+                          className="
+                            risk-prediction__incident-title
+                          "
+                        >
+                          ⚠ Current incident
+                          reported
+                        </div>
+
+
+                        <div
+                          className="
+                            risk-prediction__incident-details
+                          "
+                        >
+
+                          <span>
+
+                            {
+                              incidents[0]
+                                ?.type
+                            }
+
+                            {" • "}
+
+                            {
+                              incidents[0]
+                                ?.severity
+                            }
+
+                          </span>
+
+
+                          <span>
+
+                            +{
+                              incidents.length - 1
+                            }
+
+                            {" more"}
+
+                          </span>
+
+                        </div>
+
+                      </div>
+
+                    ) : (
+
+                      <div
+                        className="
+                          risk-prediction__no-incident
+                        "
+                      >
+                        ✓ No active field
+                        incidents reported
+                      </div>
+
+                    )}
+
+
+                    {/* Selection state */}
+                    <div
+                      className="
+                        risk-prediction__selection
+                      "
+                    >
+
+                      {isSelected
+                        ? "✓ SELECTED ON MAP"
+                        : "VIEW ON MAP"
+                      }
+
+                    </div>
+
+                  </button>
+
+                );
+
+              }
+            )}
+
+          </div>
+
+        </section>
+
+
+        {/* =================================
+            WHY THIS ROUTE
+        ================================= */}
+
+        <section
+          className="
+            risk-prediction__why
+          "
+        >
+
+          <div
+            className="
+              risk-prediction__section-heading
+            "
+          >
+
+            <div>
+
+              <h2>
+                Why This Route?
+              </h2>
+
+              <p>
+                Route intelligence
+                from the planning
+                engine for
+                {" "}
+                {
+                  selectedRoute
+                    ?.routeId
+                }.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div
+            className="
+              risk-prediction__why-card
+            "
+          >
+
+            <p
+              className="
+                risk-prediction__reason-summary
+              "
+            >
+              {
+                recommendedReason
+              }
+            </p>
+
+
+            {analysisReasons.length > 0 ? (
+
+              <ul
+                className="
+                  risk-prediction__reason-list
+                "
+              >
+
+                {analysisReasons.map(
+                  (
+                    reason,
+                    index
+                  ) => (
+
+                    <li
+                      key={index}
+                    >
+                      ✓
+                      <span>
+                        {reason}
+                      </span>
+                    </li>
+
+                  )
+                )}
+
+              </ul>
+
+            ) : (
+
+              <ul
+                className="
+                  risk-prediction__reason-list
+                "
+              >
+
+                <li>
+                  ✓
+                  <span>
+                    Risk level:
+                    {" "}
+                    {
+                      selectedRiskLevel
+                    }
+                  </span>
+                </li>
+
+
+                <li>
+                  ✓
+                  <span>
+                    Risk coverage:
+                    {" "}
+                    {Math.round(
+                      selectedRoute
+                        ?.risk
+                        ?.coveragePercent ||
+                        0
+                    )}
+                    %
+                  </span>
+                </li>
+
+
+                <li>
+                  ✓
+                  <span>
+                    High-risk segments:
+                    {" "}
+                    {
+                      selectedRoute
+                        ?.risk
+                        ?.highRiskSegmentCount ||
+                      0
+                    }
+                  </span>
+                </li>
+
+              </ul>
+
+            )}
+
+          </div>
+
+        </section>
+
+
+        {/* =================================
+            CURRENT INCIDENTS
+        ================================= */}
+
+        {selectedIncidents.length > 0 ? (
+
+          <section
+            className="
+              risk-prediction__incidents
+            "
+          >
+
+            <div
+              className="
+                risk-prediction__section-heading
+              "
+            >
+
+              <div>
+
+                <h2>
+                  Current Field Incidents
+                </h2>
+
+                <p>
+                  Reports submitted
+                  by field officers
+                  near this route.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <div
+              className="
+                risk-prediction__incident-list
+              "
+            >
+
+              {selectedIncidents.map(
+                (incident) => (
+
+                  <article
+                    key={
+                      incident.incidentId
+                    }
+
+                    className="
+                      risk-prediction__incident-card
+                    "
+                  >
+
+                    <div>
+
+                      <span
+                        className="
+                          risk-prediction__incident-type
+                        "
+                      >
+                        ⚠
+                        {" "}
+                        {
+                          incident.type
+                        }
+                      </span>
+
+                      <h3>
+                        {
+                          incident.description ||
+                          "Field incident reported."
+                        }
+                      </h3>
+
+                    </div>
+
+
+                    <div
+                      className="
+                        risk-prediction__incident-meta
+                      "
+                    >
+
+                      <span>
+                        Severity:
+                        {" "}
+                        <strong>
+                          {
+                            incident.severity
+                          }
+                        </strong>
+                      </span>
+
+
+                      <span>
+                        Distance from
+                        route:
+                        {" "}
+                        {
+                          incident.distanceFromRouteKm
+                        }
+                        {" km"}
+                      </span>
+
+                    </div>
+
+                  </article>
+
+                )
+              )}
+
+            </div>
+
+          </section>
+
+        ) : null}
+
+
+        {/* =================================
+            DISCLAIMER
+        ================================= */}
+
+        {routeData.analysis
+          ?.disclaimer ? (
+
+          <p
+            className="
+              risk-prediction__disclaimer
+            "
+          >
+            {
+              routeData.analysis
+                .disclaimer
+            }
+          </p>
+
+        ) : null}
+
+      </main>
+
+    </div>
   );
 }
+
+export default RiskPrediction;
