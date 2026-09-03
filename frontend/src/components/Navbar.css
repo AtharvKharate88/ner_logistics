@@ -28,6 +28,49 @@
   padding-inline: var(--space-4);
 }
 
+.navbar__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.navbar__sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  width: 2.5rem;
+  height: 2.5rem;
+
+  border-radius: var(--radius-md);
+
+  background-color: transparent;
+
+  color: var(--forest-text);
+
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.navbar__sidebar-toggle:hover {
+  background-color: var(--forest-hover);
+  color: var(--forest-accent-soft);
+}
+
+.navbar__sidebar-toggle:focus-visible {
+  outline: 1px solid var(--forest-accent-soft);
+  outline-offset: 2px;
+}
+
+.navbar__sidebar-toggle svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
 .navbar__brand {
   display: flex;
   align-items: center;

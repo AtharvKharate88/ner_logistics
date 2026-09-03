@@ -2,48 +2,147 @@
   --forest-bg: #081c15;
   --forest-surface: #102a23;
   --forest-accent: var(--color-secondary);
-  --forest-accent-soft: color-mix(in srgb, var(--color-success) 70%, white);
-  --forest-text: color-mix(in srgb, var(--color-background) 90%, var(--color-secondary));
+
+  --forest-accent-soft: color-mix(
+    in srgb,
+    var(--color-success) 70%,
+    white
+  );
+
+  --forest-text: color-mix(
+    in srgb,
+    var(--color-background) 90%,
+    var(--color-secondary)
+  );
+
   --forest-muted: var(--color-text-secondary);
-  --forest-border: color-mix(in srgb, var(--color-secondary) 32%, transparent);
-  --forest-hover: color-mix(in srgb, var(--color-secondary) 18%, var(--forest-bg));
-  --forest-active: color-mix(in srgb, var(--color-secondary) 28%, var(--forest-bg));
+
+  --forest-border: color-mix(
+    in srgb,
+    var(--color-secondary) 32%,
+    transparent
+  );
+
+  --forest-hover: color-mix(
+    in srgb,
+    var(--color-secondary) 18%,
+    var(--forest-bg)
+  );
+
+  --forest-active: color-mix(
+    in srgb,
+    var(--color-secondary) 28%,
+    var(--forest-bg)
+  );
+
+  /* Sidebar behaves like a drawer on every screen */
+  position: fixed;
+  top: var(--navbar-height);
+  left: 0;
+  z-index: 50;
 
   display: flex;
   flex-direction: column;
+
   width: var(--sidebar-width);
-  min-height: calc(100vh - var(--navbar-height));
+  height: calc(100vh - var(--navbar-height));
+  min-height: 0;
+
   padding: var(--space-4) var(--space-3);
+
   background-color: var(--forest-bg);
   border-right: 1px solid var(--forest-border);
+
+  /* Hidden by default */
+  transform: translateX(-100%);
+
+  transition: transform 0.25s ease;
+
+  box-shadow: var(--shadow-lg);
 }
 
-.sidebar__overlay {
-  display: none;
+/* Show sidebar */
+.sidebar.is-open {
+  transform: translateX(0);
 }
+
+
+/* ========================================
+   OVERLAY
+======================================== */
+
+.sidebar__overlay {
+  position: fixed;
+
+  top: var(--navbar-height);
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  z-index: 40;
+
+  display: block;
+
+  width: 100%;
+
+  border: 0;
+  padding: 0;
+
+  background-color: rgba(0, 0, 0, 0.45);
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  cursor: pointer;
+
+  transition: opacity 0.25s ease;
+}
+
+/* Show overlay when sidebar is open */
+.sidebar__overlay.is-visible {
+  opacity: 0.2;
+  pointer-events: auto;
+}
+
+
+/* ========================================
+   SIDEBAR HEADER
+======================================== */
 
 .sidebar__header {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
+
   gap: var(--space-3);
+
   margin-bottom: var(--space-6);
+
   padding-bottom: var(--space-4);
+
   border-bottom: 1px solid var(--forest-border);
 }
 
 .sidebar__brand {
   display: flex;
+
   align-items: center;
+
   gap: var(--space-2);
+
   min-width: 0;
 }
 
 .sidebar__mark {
   display: flex;
+
   flex-shrink: 0;
+
   width: 1.25rem;
   height: 1.25rem;
+
   color: var(--forest-accent-soft);
 }
 
@@ -54,27 +153,49 @@
 
 .sidebar__brand-text {
   font-family: var(--font-family);
+
   font-size: var(--font-xs);
+
   font-weight: 700;
+
   letter-spacing: 0.1em;
+
   text-transform: uppercase;
+
   color: var(--forest-text);
 }
 
+
+/* ========================================
+   CLOSE BUTTON
+======================================== */
+
+/* Visible on ALL screen sizes */
 .sidebar__close {
-  display: none;
+  display: inline-flex;
+
   align-items: center;
   justify-content: center;
+
   width: 2rem;
   height: 2rem;
+
+  flex-shrink: 0;
+
   border-radius: var(--radius-md);
+
   background-color: transparent;
+
   color: var(--forest-muted);
-  transition: color 0.2s ease, background-color 0.2s ease;
+
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .sidebar__close:hover {
   color: var(--forest-accent-soft);
+
   background-color: var(--forest-hover);
 }
 
@@ -85,71 +206,109 @@
 
 .sidebar__close:focus-visible {
   outline: 1px solid var(--forest-accent-soft);
+
   outline-offset: 2px;
 }
 
+
+/* ========================================
+   NAVIGATION
+======================================== */
+
 .sidebar__nav {
   display: flex;
+
   flex-direction: column;
+
   gap: var(--space-6);
+
   flex: 1;
 }
 
 .sidebar__section {
   display: flex;
+
   flex-direction: column;
+
   gap: var(--space-2);
 }
 
 .sidebar__label {
   padding-inline: var(--space-3);
+
   font-size: var(--font-xs);
+
   font-weight: 600;
+
   letter-spacing: 0.12em;
+
   text-transform: uppercase;
+
   color: var(--forest-muted);
 }
 
 .sidebar__list {
   display: flex;
+
   flex-direction: column;
+
   gap: var(--space-1);
 }
 
 .sidebar__link {
   display: flex;
+
   align-items: center;
+
   gap: var(--space-3);
+
   width: 100%;
+
   padding: var(--space-2) var(--space-3);
+
   border-radius: var(--radius-sm);
+
   border-left: 2px solid transparent;
+
   background-color: transparent;
+
   color: var(--forest-muted);
+
   font-size: var(--font-sm);
+
   font-weight: 500;
-  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .sidebar__link:hover {
   color: var(--forest-accent-soft);
+
   background-color: var(--forest-hover);
 }
 
 .sidebar__link:focus-visible {
   outline: 1px solid var(--forest-accent-soft);
+
   outline-offset: 2px;
 }
 
 .sidebar__link--active {
   color: var(--forest-accent-soft);
+
   background-color: var(--forest-active);
+
   border-left-color: var(--forest-accent-soft);
 }
 
 .sidebar__icon {
   display: inline-flex;
+
   flex-shrink: 0;
+
   width: 1.15rem;
   height: 1.15rem;
 }
@@ -163,46 +322,13 @@
   min-width: 0;
 }
 
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
 @media (max-width: 64rem) {
   .sidebar {
-    position: fixed;
-    top: var(--navbar-height);
-    left: 0;
-    z-index: 30;
-    height: calc(100vh - var(--navbar-height));
-    min-height: 0;
-    transform: translateX(-100%);
-    transition: transform 0.2s ease;
-  }
-
-  .sidebar.is-open {
-    transform: translateX(0);
-  }
-
-  .sidebar__overlay {
-    position: fixed;
-    top: var(--navbar-height);
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 20;
-    display: block;
-    width: 100%;
-    border: 0;
-    padding: 0;
-    background-color: var(--forest-bg);
-    opacity: 0;
-    pointer-events: none;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-  }
-
-  .sidebar__overlay.is-visible {
-    opacity: 0.72;
-    pointer-events: auto;
-  }
-
-  .sidebar__close {
-    display: inline-flex;
+    width: min(var(--sidebar-width), 85vw);
   }
 }

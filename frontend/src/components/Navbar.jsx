@@ -13,48 +13,113 @@ function Navbar({ onMenuClick }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleToggle = () => {
-    if (typeof onMenuClick === "function") {
-      onMenuClick();
-      return;
-    }
-
     setIsMenuOpen((open) => !open);
   };
 
   const closeMenu = () => setIsMenuOpen(false);
 
+  const handleSidebarToggle = () => {
+    if (typeof onMenuClick === "function") {
+      onMenuClick();
+    }
+  };
+
   return (
     <header className="navbar">
       <div className="navbar__inner">
-        <Link to="/" className="navbar__brand" onClick={closeMenu}>
-          <span className="navbar__mark" aria-hidden="true">
-            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="8" cy="23" r="3.1" stroke="currentColor" strokeWidth="1.6" />
-              <circle cx="15.5" cy="8" r="3.1" stroke="currentColor" strokeWidth="1.6" />
-              <circle cx="25" cy="20" r="3.1" stroke="currentColor" strokeWidth="1.6" />
+
+        <div className="navbar__left">
+          <button
+            type="button"
+            className="navbar__sidebar-toggle"
+            aria-label="Open sidebar"
+            onClick={handleSidebarToggle}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
               <path
-                d="M10.6 20.6 13.4 10.8M18.4 9.8 22.6 17.6M10.7 23.6 21.9 20.8"
+                d="M4 6h16M4 12h16M4 18h16"
                 stroke="currentColor"
-                strokeWidth="1.6"
+                strokeWidth="1.8"
                 strokeLinecap="round"
               />
-              <circle cx="8" cy="23" r="1.1" fill="currentColor" />
-              <circle cx="15.5" cy="8" r="1.1" fill="currentColor" />
-              <circle cx="25" cy="20" r="1.1" fill="currentColor" />
             </svg>
-          </span>
-          <span className="navbar__identity">
-            <span className="navbar__title">NER Logistics</span>
-            <span className="navbar__subtitle">AI-powered logistics intelligence</span>
-          </span>
-        </Link>
+          </button>
 
+          <Link
+            to="/"
+            className="navbar__brand"
+            onClick={closeMenu}
+          >
+            <span className="navbar__mark" aria-hidden="true">
+              <svg
+                viewBox="0 0 32 32"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="8"
+                  cy="23"
+                  r="3.1"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                />
+
+                <circle
+                  cx="15.5"
+                  cy="8"
+                  r="3.1"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                />
+
+                <circle
+                  cx="25"
+                  cy="20"
+                  r="3.1"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                />
+
+                <path
+                  d="M10.6 20.6 13.4 10.8M18.4 9.8 22.6 17.6M10.7 23.6 21.9 20.8"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                />
+
+                <circle cx="8" cy="23" r="1.1" fill="currentColor" />
+                <circle cx="15.5" cy="8" r="1.1" fill="currentColor" />
+                <circle cx="25" cy="20" r="1.1" fill="currentColor" />
+              </svg>
+            </span>
+
+            <span className="navbar__identity">
+              <span className="navbar__title">
+                NER Logistics
+              </span>
+
+              <span className="navbar__subtitle">
+                AI-powered logistics intelligence
+              </span>
+            </span>
+          </Link>
+        </div>
+
+        {/* Mobile navigation toggle */}
         <button
           type="button"
           className="navbar__toggle"
           aria-expanded={isMenuOpen}
           aria-controls="navbar-navigation"
-          aria-label={isMenuOpen ? "Close navigation" : "Open navigation"}
+          aria-label={
+            isMenuOpen
+              ? "Close navigation"
+              : "Open navigation"
+          }
           onClick={handleToggle}
         >
           <span className="navbar__toggle-bar" />
@@ -73,7 +138,11 @@ function Navbar({ onMenuClick }) {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `navbar__link${isActive ? " navbar__link--active" : ""}`
+                `navbar__link${
+                  isActive
+                    ? " navbar__link--active"
+                    : ""
+                }`
               }
               onClick={closeMenu}
             >
@@ -81,6 +150,7 @@ function Navbar({ onMenuClick }) {
             </NavLink>
           ))}
         </nav>
+
       </div>
     </header>
   );
