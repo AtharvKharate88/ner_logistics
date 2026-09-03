@@ -1,10 +1,102 @@
 const mongoose = require('mongoose');
+const Incident = require('../models/Incident');
 const routeService = require('./route.service');
 const RouteRequest = require('../models/routeRequest.model');
 const { resolvePlace } = require('../config/cities');
 const { AppError } = require('../middleware/error.middleware');
 const { buildDemoRoutes } = require('./demoRoute.fallback');
+const haversineDistanceKm = (lat1, lon1, lat2, lon2) => {
+  const toRadians = (degrees) => (degrees * Math.PI) / 180;
 
+  const earthRadiusKm = 6371;
+
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRadians(lat1)) *
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) ** 2;
+
+  const c = 2 * Math.atan2(
+    Math.sqrt(a),
+    Math.sqrt(1 - a)
+  );
+
+  return earthRadiusKm * c;
+};
+const getGeometryCoordinates = (geometry) => {
+  if (!geometry) {
+    return [];
+  }
+
+  if (geometry.type === 'LineString') {
+    return geometry.coordinates || [];
+  }
+
+  if (geometry.type === 'Feature') {
+    return getGeometryCoordinates(geometry.geometry);
+  }
+
+  if (geometry.type === 'FeatureCollection') {
+    return (geometry.features || []).flatMap(
+      (feature) => getGeometryCoordinates(feature)
+    );
+  }
+
+  return [];
+};
+const findIncidentsNearRoute = (route, incidents) => {
+  const coordinates = getGeometryCoordinates(route.geometry);
+
+  if (!coordinates.length) {
+    return [];
+  }
+
+  const nearbyIncidents = [];
+
+  for (const incident of incidents) {
+    let minimumDistanceKm = Infinity;
+
+    for (const coordinate of coordinates) {
+      const [lon, lat] = coordinate;
+
+      const distanceKm = haversineDistanceKm(
+        incident.latitude,
+        incident.longitude,
+        lat,
+        lon
+      );
+
+      if (distanceKm < minimumDistanceKm) {
+        minimumDistanceKm = distanceKm;
+      }
+    }
+
+    if (minimumDistanceKm <= 5) {
+      nearbyIncidents.push({
+        incidentId: incident.incidentId,
+        type: incident.type,
+        severity: incident.severity,
+        description: incident.description,
+        latitude: incident.latitude,
+        longitude: incident.longitude,
+        distanceFromRouteKm: Number(
+          minimumDistanceKm.toFixed(2)
+        ),
+        status: incident.status,
+        reportedAt: incident.createdAt
+      });
+    }
+  }
+
+  return nearbyIncidents.sort(
+    (a, b) =>
+      a.distanceFromRouteKm -
+      b.distanceFromRouteKm
+  );
+};
 const mapRoute = (route) => {
   const riskAvailable = route?.risk?.meanRisk !== null && route?.risk?.meanRisk !== undefined;
   const riskLevel = route?.risk?.riskLevel || 'UNKNOWN';
@@ -143,6 +235,22 @@ const planRouteWithRisk = async (validated) => {
   }
 
   const routes = engineResponse.routes.map(mapRoute);
+  // Check current Field Officer incidents near each route.
+  assertMongoReady();
+
+  const currentIncidents = await Incident.find({
+    status: 'REPORTED'
+  }).lean();
+
+  console.log('CURRENT INCIDENTS:', currentIncidents);
+  console.log('IS ARRAY:', Array.isArray(currentIncidents));
+  // Check each route against the current incidents.
+  for (const route of routes) {
+    route.currentIncidents = findIncidentsNearRoute(
+      route,
+      currentIncidents
+    );
+  }
   const recommendedRouteId = engineResponse.recommendedRouteId || null;
   const recommended = routes.find((route) => route.routeId === recommendedRouteId) || null;
   const weights = engineResponse.riskMetadata?.scoringWeights || { distance: 0.5, risk: 0.5 };

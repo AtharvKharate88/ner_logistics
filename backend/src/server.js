@@ -4,8 +4,11 @@ const rateLimit = require('express-rate-limit');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
+const path = require('path');
 const routeRoutes = require('./routes/route.routes');
 const riskRoutes = require('./routes/risk.routes');
+const authRoutes = require('./routes/auth.routes');
+const { authenticate } = require('./middleware/auth.middleware');
 const { errorHandler, notFoundHandler } = require('./middleware/error.middleware');
 
 dotenv.config();
@@ -13,7 +16,10 @@ connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-
+app.use(
+  '/uploads',
+  express.static(path.join(process.cwd(), 'uploads'))
+);
 app.use(helmet());
 app.use(cors({
   origin: process.env.CORS_ORIGIN && process.env.CORS_ORIGIN !== '*'
@@ -39,6 +45,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+app.use('/api', authRoutes);
 app.use('/api', routeRoutes);
 app.use('/api', riskRoutes);
 app.use(notFoundHandler);

@@ -115,3 +115,51 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
+.route-card__incident-warning {
+  padding: var(--space-3);
+  border: 1px solid
+    color-mix(in srgb, var(--color-risk-high) 45%, var(--color-forest-border));
+  border-radius: var(--radius-md);
+  background: color-mix(
+    in srgb,
+    var(--color-risk-high) 8%,
+    var(--color-forest-surface)
+  );
+}
+
+.route-card__incident-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-risk-high);
+  font-size: var(--font-sm);
+}
+
+.route-card__incident-indicator {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--color-risk-high);
+}
+
+.route-card__incident {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  color: var(--color-forest-text);
+  font-size: var(--font-xs);
+}
+
+.route-card__incident span:last-child {
+  color: var(--color-forest-muted);
+  text-align: right;
+}
+
+.route-card__incident-more {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--color-forest-muted);
+  font-size: var(--font-xs);
+}

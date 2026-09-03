@@ -55,3 +55,6 @@ route-engine/data/graph/*.tmp
 
 # Keep main graph in Git LFS
 !route-engine/data/graph/road_graph.joblib
+
+# Uploaded incident photos
+backend/uploads/
