@@ -289,6 +289,53 @@ class RiskService:
 
         return results
 
+    def get_segment_history(
+        self,
+        segment_id: str,
+        start_date: date,
+        end_date: date,
+    ) -> list[dict[str, Any]]:
+
+        self.load()
+
+        assert self._predictions is not None
+
+        if start_date > end_date:
+            raise RiskServiceError(
+                "startDate cannot be after endDate."
+            )
+
+        # ---------------------------------------------------------
+        # Filter predictions for this segment and date range
+        # ---------------------------------------------------------
+
+        history = self._predictions[
+            (self._predictions["road_segment_id"] == segment_id)
+            & (self._predictions["date"] >= start_date)
+            & (self._predictions["date"] <= end_date)
+        ].copy()
+
+        if history.empty:
+            return []
+
+        history = history.sort_values("date")
+
+        # ---------------------------------------------------------
+        # Build historical response
+        # ---------------------------------------------------------
+
+        results: list[dict[str, Any]] = []
+
+        for _, row in history.iterrows():
+            results.append({
+                "date": row["date"].isoformat(),
+                "riskScore": float(row["risk_score"]),
+                "riskLevel": str(row["risk_level"]),
+                "anomalyScore": float(row["anomaly_score"]),
+            })
+
+        return results
+
 
 _SERVICE: RiskService | None = None
 
